@@ -1,8 +1,7 @@
 package com.group2.blogplatform.entity;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
@@ -11,6 +10,9 @@ import java.time.LocalDateTime;
 @Table(name = "posts")
 @Getter
 @Setter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class Post {
 
     @Id
@@ -28,8 +30,8 @@ public class Post {
     private String imageUrl;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "status", nullable = false)
-    private StatusPost statusPost = StatusPost.PUBLISHED;
+    @Column(name = "status")
+    private StatusPost statusPost;
 
     @Column(name = "is_pinned")
     private boolean isPinned = false;

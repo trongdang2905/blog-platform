@@ -14,7 +14,7 @@ public class Topic {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "name", nullable = false)
+    @Column(name = "name", nullable = false, columnDefinition = "NVARCHAR(100)")
     private String name;
 
 }

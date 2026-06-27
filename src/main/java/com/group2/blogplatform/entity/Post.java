@@ -5,6 +5,7 @@ import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table(name = "posts")
@@ -19,7 +20,7 @@ public class Post {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "title", nullable = false)
+    @Column(name = "title", nullable = false, columnDefinition = "NVARCHAR(1000)")
     private String title;
 
     @Lob
@@ -47,4 +48,9 @@ public class Post {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "topic_id", nullable = false)
     private Topic topic;
+
+    @OneToMany(fetch = FetchType.LAZY,
+            cascade = CascadeType.ALL,
+            mappedBy = "post", orphanRemoval = true)
+    private List<Comment> comments;
 }

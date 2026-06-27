@@ -1,32 +1,27 @@
 package com.group2.blogplatform.controller;
 
 import com.group2.blogplatform.dto.response.PostDTO;
-import com.group2.blogplatform.entity.Topic;
-import com.group2.blogplatform.service.PostService;
 import com.group2.blogplatform.service.TopicService;
-import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
 
 import java.util.List;
 
-
 @Controller
+@RequestMapping("/topics")
 @RequiredArgsConstructor
-public class HomeController {
+public class TopicController {
 
-    private final PostService postService;
     private final TopicService topicService;
 
-    @GetMapping("/")
-    public String getHome(Model model, HttpSession session) {
-        List<PostDTO> posts = postService.getPosts(1L);
-        List<Topic> topics = topicService.findAll();
+    @GetMapping("/{id}")
+    public String getPostByTopic(@PathVariable("id") Long topicId, Model model) {
+        List<PostDTO> posts = topicService.findAllPostsByTopic(1L, topicId);
         model.addAttribute("posts", posts);
-        session.setAttribute("topics", topics);
         return "home";
     }
-
 }

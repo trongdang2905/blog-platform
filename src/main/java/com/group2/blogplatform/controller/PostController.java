@@ -12,6 +12,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import com.group2.blogplatform.service.CommentService;
+import com.group2.blogplatform.service.LikeService;
 
 import java.util.List;
 
@@ -21,6 +23,10 @@ import java.util.List;
 public class PostController {
 
     private final PostService postService;
+
+    // UC04/UC05 - bo sung de lay du lieu comment/like cho trang chi tiet bai viet
+    private final CommentService commentService;
+    private final LikeService likeService;
 
     @GetMapping("/create")
     public String getViewPost(Model model) {
@@ -60,6 +66,14 @@ public class PostController {
     public String getDetailPost(@PathVariable("id") Long postId, Model model) {
         PostDTO post = postService.getPost(postId);
         model.addAttribute("post", post);
+
+        // UC04/UC05 - bo sung du lieu de hien thi comment, like, report tren trang chi tiet
+        model.addAttribute("postId", postId);
+        model.addAttribute("comments", commentService.getVisibleCommentsByPost(postId));
+        model.addAttribute("commentCount", commentService.countVisibleComments(postId));
+        model.addAttribute("likeCount", likeService.countLikes(postId));
+        model.addAttribute("likedByCurrentUser", likeService.isLikedByCurrentUser(postId));
+
         return "post-detail";
     }
 

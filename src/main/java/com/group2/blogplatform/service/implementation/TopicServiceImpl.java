@@ -56,10 +56,50 @@ public class TopicServiceImpl implements TopicService {
     private String calculateDuration(LocalDateTime dateTime) {
         LocalDateTime now = LocalDateTime.now();
         Duration duration = Duration.between(dateTime, now);
-        return String.format("%s giờ trước", duration.toHours());
+        long hours = duration.toHours();
+
+        if (hours <= 0) {
+            long minutes = duration.toMinutes();
+            if (minutes <= 1) return "Just now";
+            return String.format("%s minutes ago", minutes);
+        }
+
+        if (hours == 1) {
+            return "1 hour ago";
+        }
+        return String.format("%s hours ago", hours);
     }
 
     private boolean checkSaved(Long userId, Long postId) {
         return savedPostRepository.checkSavedByUserIdAndPostId(userId, postId);
+    }
+
+
+
+    @Override
+    public void saveTopic(Topic topic) {
+        if (topic.getName() != null) {
+            String slug = topic.getName().toLowerCase()
+                    .replaceAll("[^a-z0-9\\s-]", "")
+                    .replaceAll("\\s+", "-")
+                    .replaceAll("-+", "-")
+                    .replaceAll("^-|-$", "");
+            topic.setSlug(slug);
+        }
+        topicRepository.save(topic);
+    }
+
+    @Override
+    public Topic getTopicById(Integer id) {
+        Topic topic = topicRepository.findByID(id);
+        if (topic == null) {
+            throw new IllegalArgumentException("Topic not found with ID: " + id);
+        }
+        return topic;
+    }
+
+    @Override
+    public void deleteTopic(Integer id) {
+        topicRepository.deleteById(id);
     }
 }

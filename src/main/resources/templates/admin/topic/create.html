@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin - Create Topic</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">Create New Topic</h4>
+                </div>
+                <div class="card-body">
+                    <form th:action="@{/admin/topics/create}" th:object="${topic}" method="post">
+
+                        <div class="mb-3">
+                            <label for="name" class="form-label fw-bold">Topic Name</label>
+                            <input type="text" th:field="*{name}" id="name" class="form-control" placeholder="Enter topic name">
+                            <div class="text-danger small mt-1" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="description" class="form-label fw-bold">Description</label>
+                            <textarea th:field="*{description}" id="description" rows="4" class="form-control" placeholder="Enter topic description"></textarea>
+                            <div class="text-danger small mt-1" th:if="${#fields.hasErrors('description')}" th:errors="*{description}"></div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="displayOrder" class="form-label fw-bold">Display Order</label>
+                            <input type="number" th:field="*{displayOrder}" id="displayOrder" class="form-control" placeholder="e.g. 1, 2, 3">
+                        </div>
+
+                        <div class="mb-3 form-check">
+                            <input type="checkbox" th:field="*{isActive}" id="isActive" class="form-check-input" th:checked="*{isActive}">
+                            <label for="isActive" class="form-check-label fw-bold">Active Status (Visible to users)</label>
+                        </div>
+
+                        <div class="d-flex justify-content-end gap-2 mt-4">
+                            <a th:href="@{/admin/topics}" class="btn btn-secondary">Cancel</a>
+                            <button type="submit" class="btn btn-success">Save Topic</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,1185 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="https://www.thymeleaf.org/">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${post.title + ' — ForumFPT'}">Bài viết — ForumFPT</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg: #f5f4f0;
+            --surface: #ffffff;
+            --border: #e4e2db;
+            --text: #1a1a18;
+            --text-muted: #7a7870;
+            --accent: #2563eb;
+            --accent-light: #eff6ff;
+            --hot: #e85c2c;
+            --saved: #d97706;
+            --saved-bg: #fffbeb;
+            --report: #dc2626;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        /* ── NAV ── */
+        nav {
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            padding: 0 24px;
+            height: 52px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .logo {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--accent);
+            letter-spacing: -0.3px;
+            text-decoration: none;
+        }
+
+        .logo span {
+            color: var(--text);
+        }
+
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn {
+            padding: 6px 14px;
+            border-radius: 6px;
+            font-size: 13px;
+            cursor: pointer;
+            border: none;
+            font-weight: 500;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            transition: opacity 0.15s;
+        }
+
+        .btn:hover {
+            opacity: 0.85;
+        }
+
+        .btn-ghost {
+            background: transparent;
+            color: var(--text-muted);
+            border: 1px solid var(--border);
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: #fff;
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px;
+            color: var(--text-muted);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.15s;
+        }
+
+        .back-link:hover {
+            color: var(--accent);
+        }
+
+        /* ── LAYOUT ── */
+        .layout {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 24px 16px;
+            display: grid;
+            grid-template-columns: 1fr 240px;
+            gap: 24px;
+        }
+
+        /* ── POST DETAIL ── */
+        .post-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 24px;
+            margin-bottom: 16px;
+        }
+
+        .post-meta {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: 700;
+            color: #fff;
+            flex-shrink: 0;
+        }
+
+        .meta-info {
+            flex: 1;
+        }
+
+        .post-author {
+            font-size: 14px;
+            font-weight: 600;
+            display: block;
+        }
+
+        .post-time {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .topic-badge {
+            font-size: 11px;
+            padding: 3px 9px;
+            border-radius: 5px;
+            font-weight: 500;
+            background: var(--accent-light);
+            color: var(--accent);
+        }
+
+        .post-title {
+            font-size: 22px;
+            font-weight: 700;
+            line-height: 1.35;
+            margin-bottom: 16px;
+            letter-spacing: -0.3px;
+        }
+
+        /* ── IMAGES ── */
+        .post-images {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .post-images.single {
+            grid-template-columns: 1fr;
+            max-width: 560px;
+        }
+
+        .post-image {
+            width: 100%;
+            border-radius: 8px;
+            object-fit: cover;
+            cursor: pointer;
+            transition: opacity 0.15s;
+            border: 1px solid var(--border);
+        }
+
+        .post-images.single .post-image {
+            max-height: 400px;
+            object-fit: contain;
+            background: var(--bg);
+        }
+
+        .post-images:not(.single) .post-image {
+            height: 180px;
+        }
+
+        .post-image:hover {
+            opacity: 0.9;
+        }
+
+        /* ── CONTENT ── */
+        .post-content {
+            font-size: 15px;
+            line-height: 1.75;
+            color: var(--text);
+            white-space: pre-line;
+            margin-bottom: 20px;
+        }
+
+        /* ── ACTIONS BAR ── */
+        .actions-bar {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding-top: 16px;
+            border-top: 1px solid var(--border);
+        }
+
+        .action-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 7px 14px;
+            border-radius: 7px;
+            border: 1px solid var(--border);
+            background: transparent;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .action-btn:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+            background: var(--accent-light);
+        }
+
+        .action-btn.liked {
+            border-color: #e85c2c;
+            color: #e85c2c;
+            background: #fff5f0;
+        }
+
+        .action-btn.saved {
+            border-color: var(--saved);
+            color: var(--saved);
+            background: var(--saved-bg);
+        }
+
+        .action-btn.report-btn:hover {
+            border-color: #fca5a5;
+            color: var(--report);
+            background: #fef2f2;
+        }
+
+        .action-btn .count {
+            font-weight: 600;
+        }
+
+        .spacer {
+            flex: 1;
+        }
+
+        /* ── COMMENTS ── */
+        .comments-section {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 20px;
+        }
+
+        .comments-title {
+            font-size: 15px;
+            font-weight: 700;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .comments-count {
+            font-size: 12px;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 1px 8px;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        /* Comment input */
+        .comment-input-area {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .comment-input-area .avatar {
+            width: 32px;
+            height: 32px;
+            font-size: 12px;
+            flex-shrink: 0;
+        }
+
+        .comment-box {
+            flex: 1;
+        }
+
+        .comment-textarea {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 13px;
+            font-family: inherit;
+            resize: none;
+            outline: none;
+            min-height: 42px;
+            transition: border-color 0.15s, min-height 0.15s;
+            color: var(--text);
+            background: var(--bg);
+        }
+
+        .comment-textarea:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.08);
+            background: var(--surface);
+            min-height: 80px;
+        }
+
+        .comment-submit-row {
+            display: none;
+            justify-content: flex-end;
+            margin-top: 8px;
+        }
+
+        .comment-submit-row.show {
+            display: flex;
+        }
+
+        .btn-submit-comment {
+            padding: 7px 16px;
+            background: var(--accent);
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: opacity 0.15s;
+        }
+
+        .btn-submit-comment:hover {
+            opacity: 0.88;
+        }
+
+        .btn-submit-comment:disabled {
+            opacity: 0.45;
+            cursor: not-allowed;
+        }
+
+        /* Comment list */
+        .comment-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1px;
+        }
+
+        .comment-item {
+            display: flex;
+            gap: 10px;
+            padding: 14px 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .comment-item:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+
+        .comment-item .avatar {
+            width: 32px;
+            height: 32px;
+            font-size: 12px;
+            flex-shrink: 0;
+        }
+
+        .comment-body {
+            flex: 1;
+        }
+
+        .comment-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 4px;
+        }
+
+        .comment-author {
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .comment-time {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .comment-status-badge {
+            font-size: 11px;
+            padding: 1px 6px;
+            border-radius: 4px;
+            background: #fef2f2;
+            color: var(--report);
+            font-weight: 500;
+        }
+
+        .comment-text {
+            font-size: 13px;
+            line-height: 1.6;
+            color: var(--text);
+            white-space: pre-line;
+        }
+
+        .comment-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 8px;
+        }
+
+        .comment-action-btn {
+            background: none;
+            border: none;
+            font-size: 12px;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-weight: 500;
+            padding: 0;
+            transition: color 0.15s;
+        }
+
+        .comment-action-btn:hover {
+            color: var(--accent);
+        }
+
+        .comment-action-btn.report-comment:hover {
+            color: var(--report);
+        }
+
+        /* Empty state */
+        .empty-comments {
+            text-align: center;
+            padding: 28px 0;
+            color: var(--text-muted);
+            font-size: 13px;
+        }
+
+        .empty-comments .icon {
+            font-size: 28px;
+            margin-bottom: 8px;
+        }
+
+        /* ── SIDEBAR ── */
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 14px;
+        }
+
+        .card-title {
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+
+        .topic-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 7px 0;
+            border-bottom: 1px solid var(--border);
+            cursor: pointer;
+            text-decoration: none;
+            color: inherit;
+            transition: color 0.15s;
+        }
+
+        .topic-item:hover .topic-name {
+            color: var(--accent);
+        }
+
+        .topic-item:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+
+        .topic-name {
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: color 0.15s;
+        }
+
+        .topic-count {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .new-post-btn {
+            width: 100%;
+            padding: 10px;
+            background: var(--accent);
+            color: #fff;
+            border: none;
+            border-radius: 7px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            transition: opacity 0.15s, box-shadow 0.15s;
+        }
+
+        .new-post-btn:hover {
+            opacity: 0.9;
+            box-shadow: 0 2px 8px rgba(37, 99, 235, 0.25);
+        }
+
+        /* ── LIGHTBOX ── */
+        .lightbox {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.85);
+            z-index: 200;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s;
+        }
+
+        .lightbox.show {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .lightbox img {
+            max-width: 90vw;
+            max-height: 90vh;
+            border-radius: 6px;
+            object-fit: contain;
+        }
+
+        .lightbox-close {
+            position: absolute;
+            top: 16px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.15);
+            border: none;
+            color: #fff;
+            font-size: 22px;
+            cursor: pointer;
+            border-radius: 50%;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* ── MODAL REPORT ── */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.4);
+            z-index: 50;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s;
+        }
+
+        .modal-overlay.show {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .modal {
+            background: var(--surface);
+            border-radius: 12px;
+            padding: 24px;
+            width: 100%;
+            max-width: 420px;
+            margin: 16px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.14);
+            transform: translateY(12px);
+            transition: transform 0.2s;
+        }
+
+        .modal-overlay.show .modal {
+            transform: translateY(0);
+        }
+
+        .modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+
+        .modal-title {
+            font-size: 15px;
+            font-weight: 700;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 18px;
+            cursor: pointer;
+            color: var(--text-muted);
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+
+        .modal-close:hover {
+            background: var(--bg);
+            color: var(--text);
+        }
+
+        .modal-desc {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-bottom: 14px;
+        }
+
+        .report-options {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .report-option {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 12px;
+            border: 1.5px solid var(--border);
+            border-radius: 7px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: border-color 0.15s, background 0.15s;
+        }
+
+        .report-option:hover {
+            border-color: var(--report);
+            background: #fef2f2;
+        }
+
+        .report-option input[type="radio"] {
+            accent-color: var(--report);
+            flex-shrink: 0;
+        }
+
+        .report-option.selected {
+            border-color: var(--report);
+            background: #fef2f2;
+        }
+
+        .report-note {
+            width: 100%;
+            padding: 9px 12px;
+            border: 1px solid var(--border);
+            border-radius: 7px;
+            font-size: 13px;
+            font-family: inherit;
+            resize: vertical;
+            min-height: 72px;
+            margin-bottom: 16px;
+            outline: none;
+            transition: border-color 0.15s;
+        }
+
+        .report-note:focus {
+            border-color: var(--report);
+            box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.08);
+        }
+
+        .modal-footer {
+            display: flex;
+            gap: 8px;
+            justify-content: flex-end;
+        }
+
+        .btn-cancel {
+            padding: 8px 16px;
+            border-radius: 6px;
+            border: 1px solid var(--border);
+            background: transparent;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            color: var(--text-muted);
+        }
+
+        .btn-cancel:hover {
+            background: var(--bg);
+        }
+
+        .btn-report-submit {
+            padding: 8px 18px;
+            border-radius: 6px;
+            border: none;
+            background: var(--report);
+            color: #fff;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: opacity 0.15s;
+        }
+
+        .btn-report-submit:hover {
+            opacity: 0.88;
+        }
+
+        .btn-report-submit:disabled {
+            opacity: 0.45;
+            cursor: not-allowed;
+        }
+
+        /* ── TOAST ── */
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            background: var(--text);
+            color: #fff;
+            padding: 11px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 500;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.18);
+            transform: translateY(60px);
+            opacity: 0;
+            transition: transform 0.25s, opacity 0.25s;
+            z-index: 100;
+            pointer-events: none;
+        }
+
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+
+<!-- ── NAV ── -->
+<nav>
+    <a href="/" class="logo">Forum<span>FPT</span></a>
+    <div class="nav-right">
+        <a href="/" class="back-link">← Trang chủ</a>
+        <a href="/login" class="btn btn-ghost">Đăng nhập</a>
+        <a href="/register" class="btn btn-primary">Đăng ký</a>
+    </div>
+</nav>
+
+<div class="layout">
+    <div>
+
+        <!-- ── POST DETAIL ── -->
+        <div class="post-card">
+            <!-- Meta -->
+            <div class="post-meta">
+                <div class="avatar" style="background:#2563eb"
+
+                     th:text="${#strings.toUpperCase(#strings.substring(post.username,0,1))}">N
+                </div>
+                <div class="meta-info">
+                    <span class="post-author" th:text="${post.username}">nguyendev</span>
+                    <span class="post-time" th:text="${post.getDuration()}">2 giờ trước</span>
+                </div>
+                <span class="topic-badge" th:text="${post.topicName}">Công nghệ</span>
+                <span class="topic-badge" th:if="${post.pinned}"
+                      style="background:#fff5f0;color:#e85c2c;margin-left:4px">📌 Ghim</span>
+            </div>
+
+            <!-- Title -->
+            <div class="post-title" th:text="${post.title}">Tiêu đề bài viết</div>
+
+            <!-- Images (nếu có) -->
+            <div th:if="${post.imageUrl != null and !post.imageUrl.isEmpty()}"
+                 th:classappend="${#lists.size(post.imageUrl) == 1} ? 'post-images single' : 'post-images'">
+                <img th:each="url : ${post.imageUrl}"
+                     th:src="${url}" class="post-image"
+                     th:alt="${post.title}"
+                     onclick="openLightbox(this.src)"/>
+            </div>
+
+            <!-- Content -->
+            <div class="post-content" th:text="${post.content}">Nội dung bài viết...</div>
+
+            <!-- Actions -->
+            <div class="actions-bar">
+                <button class="action-btn"
+                        th:classappend="${likeCount} ? 'liked' : ''"
+                        th:attr="data-id=${post.id}"
+                        onclick="toggleLike(this)">
+                    ❤️ <span class="count" th:text="${likeCount}">0</span> Thích
+                </button>
+                <button class="action-btn" onclick="focusComment()">
+                    💬 <span>0</span> Bình luận
+                </button>
+                <div class="spacer"></div>
+                <button class="action-btn saved"
+                        th:classappend="${post.saved} ? 'saved' : ''"
+                        th:attr="data-id=${post.id}"
+                        onclick="toggleSave(this)">
+                    🔖 <span class="save-label" th:text="${post.saved} ? 'Đã lưu' : 'Lưu'">Lưu</span>
+                </button>
+                <button class="action-btn report-btn"
+                        th:attr="data-id=${post.id}, data-type='POST'"
+                        onclick="openReport(this)">
+                    🚩 Báo cáo
+                </button>
+            </div>
+        </div>
+
+        <!-- ── COMMENTS ── -->
+        <div class="comments-section">
+            <div class="comments-title">
+                Bình luận
+                <span class="comments-count" th:text="${#lists.size(comments)}">0</span>
+            </div>
+
+            <!-- Comment input -->
+            <div class="comment-input-area">
+                <div class="avatar" style="background:#2563eb">U</div>
+                <div class="comment-box">
+                    <textarea class="comment-textarea" id="commentTextarea"
+                              placeholder="Viết bình luận..."
+                              onfocus="showSubmitRow()"
+                              oninput="onCommentInput(this)"></textarea>
+                    <div class="comment-submit-row" id="commentSubmitRow">
+                        <button class="btn-submit-comment" id="commentSubmitBtn"
+                                onclick="submitComment()" disabled>Đăng bình luận
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Comment list -->
+            <div class="comment-list" id="commentList">
+
+                <!-- Thymeleaf loop -->
+                <div class="comment-item" th:each="comment : ${comments}">
+                    <div class="avatar" style="background:#7c3aed"
+                         th:style="'background:' "
+                         th:text="${#strings.toUpperCase(#strings.substring(comment.username,0,1))}">U
+                    </div>
+                    <div class="comment-body">
+                        <div class="comment-header">
+                            <span class="comment-author" th:text="${comment.username}">username</span>
+                            <span class="comment-time" th:text="${comment.createdAt}">vừa xong</span>
+                            <span class="comment-status-badge"
+                                  th:if="${comment.username == 'HIDDEN'}">Đã ẩn</span>
+                        </div>
+                        <div class="comment-text" th:text="${comment.content}">Nội dung bình luận</div>
+                        <div class="comment-actions">
+                            <button class="comment-action-btn report-comment"
+                                    th:attr="data-id=${comment.id}, data-type='COMMENT'"
+                                    onclick="openReport(this)">🚩 Báo cáo
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Empty state -->
+                <div class="empty-comments" th:if="${#lists.isEmpty(comments)}">
+                    <div class="icon">💬</div>
+                    Chưa có bình luận nào. Hãy là người đầu tiên!
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ── SIDEBAR ── -->
+    <div class="sidebar">
+        <a href="/user/post/create" class="new-post-btn">✏️ Viết bài mới</a>
+
+        <!-- Author info -->
+        <div class="card">
+            <div class="card-title">Tác giả</div>
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+                <div class="avatar" style="background:#2563eb;width:40px;height:40px;font-size:15px"
+                     th:style="'background:#2563eb;width:40px;height:40px;font-size:15px'"
+                     th:text="${#strings.toUpperCase(#strings.substring(post.username,0,1))}">N
+                </div>
+                <div>
+                    <div style="font-weight:600;font-size:13px" th:text="${post.username}">nguyendev</div>
+                    <div style="font-size:12px;color:var(--text-muted)" th:text="${post.getDuration()}">2 giờ trước
+                    </div>
+                </div>
+            </div>
+            <a th:href="@{/user/profile/{username}(username=${post.username})}"
+               class="btn btn-ghost" style="width:100%;justify-content:center;font-size:12px">
+                Xem trang cá nhân
+            </a>
+        </div>
+
+        <!-- Topics -->
+        <div class="card">
+            <div class="card-title">Chủ đề</div>
+            <a class="topic-item" th:each="topic : ${session.topics}" th:href="@{/topics/{id}(id=${topic.id})}">
+                <span class="topic-name" th:text="${topic.name}">Chủ đề</span>
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- ── LIGHTBOX ── -->
+<div class="lightbox" id="lightbox" onclick="closeLightbox()">
+    <button class="lightbox-close" onclick="closeLightbox()">✕</button>
+    <img id="lightboxImg" src="" alt=""/>
+</div>
+
+<!-- ── REPORT MODAL ── -->
+<div class="modal-overlay" id="reportModal" onclick="closeReportOnOverlay(event)">
+    <div class="modal">
+        <div class="modal-header">
+            <span class="modal-title" id="reportModalTitle">🚩 Báo cáo bài viết</span>
+            <button class="modal-close" onclick="closeReport()">✕</button>
+        </div>
+        <p class="modal-desc">Chọn lý do báo cáo. Chúng tôi sẽ xem xét và xử lý trong vòng 24 giờ.</p>
+        <div class="report-options">
+            <label class="report-option" onclick="selectOption(this)"><input type="radio" name="reportReason"
+                                                                             value="spam"> Spam hoặc quảng cáo</label>
+            <label class="report-option" onclick="selectOption(this)"><input type="radio" name="reportReason"
+                                                                             value="misinformation"> Thông tin sai lệch</label>
+            <label class="report-option" onclick="selectOption(this)"><input type="radio" name="reportReason"
+                                                                             value="harassment"> Quấy rối / xúc
+                phạm</label>
+            <label class="report-option" onclick="selectOption(this)"><input type="radio" name="reportReason"
+                                                                             value="inappropriate"> Nội dung không phù
+                hợp</label>
+            <label class="report-option" onclick="selectOption(this)"><input type="radio" name="reportReason"
+                                                                             value="other"> Lý do khác</label>
+        </div>
+        <textarea class="report-note" id="reportNote" placeholder="Mô tả thêm (không bắt buộc)..." rows="3"></textarea>
+        <div class="modal-footer">
+            <button class="btn-cancel" onclick="closeReport()">Huỷ</button>
+            <button class="btn-report-submit" id="reportSubmitBtn" onclick="submitReport()" disabled>Gửi báo cáo
+            </button>
+        </div>
+    </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+    /* ── TOAST ── */
+    let toastTimer;
+
+    function showToast(msg) {
+        const el = document.getElementById('toast');
+        el.textContent = msg;
+        el.classList.add('show');
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => el.classList.remove('show'), 3000);
+    }
+
+    /* ── LIGHTBOX ── */
+    function openLightbox(src) {
+        document.getElementById('lightboxImg').src = src;
+        document.getElementById('lightbox').classList.add('show');
+    }
+
+    function closeLightbox() {
+        document.getElementById('lightbox').classList.remove('show');
+    }
+
+    /* ── LIKE ── */
+    function toggleLike(btn) {
+        const postId = btn.dataset.id;
+        const liked = btn.classList.contains('liked');
+        const countEl = btn.querySelector('.count');
+        const url = liked ? `/user/post/unlike?postId=${postId}` : `/user/post/like?postId=${postId}`;
+        fetch(url, {method: 'POST', headers: {'X-Requested-With': 'XMLHttpRequest'}})
+            .then(res => {
+                if (!res.ok) throw new Error();
+                return res.json();
+            })
+            .then(data => {
+                btn.classList.toggle('liked', !liked);
+                countEl.textContent = data.likeCount ?? (parseInt(countEl.textContent) + (liked ? -1 : 1));
+            })
+            .catch(() => showToast('❌ Có lỗi xảy ra.'));
+    }
+
+    /* ── SAVE ── */
+    function toggleSave(btn) {
+        const postId = btn.dataset.id;
+        const isSaved = btn.classList.contains('saved');
+        const label = btn.querySelector('.save-label');
+        const url = isSaved ? `/user/post/unsave?postId=${postId}` : `/user/post/save?postId=${postId}`;
+        fetch(url, {method: 'POST', headers: {'X-Requested-With': 'XMLHttpRequest'}})
+            .then(res => {
+                if (!res.ok) throw new Error();
+            })
+            .then(() => {
+                btn.classList.toggle('saved', !isSaved);
+                label.textContent = isSaved ? 'Lưu' : 'Đã lưu';
+                showToast(isSaved ? 'Đã bỏ lưu bài viết.' : '✅ Đã lưu bài viết vào danh sách của bạn.');
+            })
+            .catch(() => showToast('❌ Có lỗi xảy ra. Vui lòng thử lại.'));
+    }
+
+    /* ── COMMENT ── */
+    function focusComment() {
+        const ta = document.getElementById('commentTextarea');
+        ta.focus();
+        ta.scrollIntoView({behavior: 'smooth', block: 'center'});
+    }
+
+    function showSubmitRow() {
+        document.getElementById('commentSubmitRow').classList.add('show');
+    }
+
+    function onCommentInput(ta) {
+        document.getElementById('commentSubmitBtn').disabled = ta.value.trim().length === 0;
+    }
+
+    function submitComment() {
+        const ta = document.getElementById('commentTextarea');
+        const content = ta.value.trim();
+        if (!content) return;
+        const postId = document.querySelector('[data-id]').dataset.id;
+        const body = new URLSearchParams({postId, content});
+        fetch('/user/comment/create', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/x-www-form-urlencoded', 'X-Requested-With': 'XMLHttpRequest'},
+            body: body.toString()
+        })
+            .then(res => {
+                if (!res.ok) throw new Error();
+                return res.json();
+            })
+            .then(data => {
+                console.log(data);
+                ta.value = '';
+                document.getElementById('commentSubmitBtn').disabled = true;
+                appendComment(data);
+                // Update count
+                const countEl = document.querySelector('.comments-count');
+                countEl.textContent = parseInt(countEl.textContent || 0) + 1;
+                document.querySelector('.action-btn:nth-child(2) span').textContent = countEl.textContent;
+                // Remove empty state if present
+                const empty = document.querySelector('.empty-comments');
+                if (empty) empty.remove();
+                showToast('✅ Đã đăng bình luận.');
+            })
+            .catch(err => {
+                console.error(err)
+            });
+    }
+
+    function appendComment(data) {
+        const list = document.getElementById('commentList');
+        const div = document.createElement('div');
+        div.className = 'comment-item';
+        div.innerHTML = `
+        <div class="avatar" style="background:${data.avatarColor || '#2563eb'}">${(data.username || 'U')[0].toUpperCase()}</div>
+        <div class="comment-body">
+            <div class="comment-header">
+                <span class="comment-author">${escapeHtml(data.username)}</span>
+                <span class="comment-time">vừa xong</span>
+            </div>
+            <div class="comment-text">${escapeHtml(data.content)}</div>
+            <div class="comment-actions">
+                <button class="comment-action-btn report-comment"
+                        data-id="${data.id}" data-type="COMMENT"
+                        onclick="openReport(this)">🚩 Báo cáo</button>
+            </div>
+        </div>`;
+        list.prepend(div);
+    }
+
+    function escapeHtml(s) {
+        return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
+    /* ── REPORT ── */
+    let currentReportId = null;
+    let currentReportType = 'POST';
+
+    function openReport(btn) {
+        currentReportId = btn.dataset.id;
+        currentReportType = btn.dataset.type || 'POST';
+        document.getElementById('reportModalTitle').textContent =
+            currentReportType === 'COMMENT' ? '🚩 Báo cáo bình luận' : '🚩 Báo cáo bài viết';
+        document.querySelectorAll('input[name="reportReason"]').forEach(r => r.checked = false);
+        document.querySelectorAll('.report-option').forEach(o => o.classList.remove('selected'));
+        document.getElementById('reportNote').value = '';
+        document.getElementById('reportSubmitBtn').disabled = true;
+        document.getElementById('reportModal').classList.add('show');
+    }
+
+    function closeReport() {
+        document.getElementById('reportModal').classList.remove('show');
+    }
+
+    function closeReportOnOverlay(e) {
+        if (e.target === document.getElementById('reportModal')) closeReport();
+    }
+
+    function selectOption(label) {
+        document.querySelectorAll('.report-option').forEach(o => o.classList.remove('selected'));
+        label.classList.add('selected');
+        document.getElementById('reportSubmitBtn').disabled = false;
+    }
+
+    function submitReport() {
+        const reason = document.querySelector('input[name="reportReason"]:checked')?.value;
+        const note = document.getElementById('reportNote').value.trim();
+        if (!reason || !currentReportId) return;
+        const body = new URLSearchParams({targetId: currentReportId, targetType: currentReportType, reason, note});
+        fetch('/user/report', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/x-www-form-urlencoded', 'X-Requested-With': 'XMLHttpRequest'},
+            body: body.toString()
+        })
+            .then(res => {
+                if (!res.ok) throw new Error();
+                closeReport();
+                showToast('✅ Báo cáo đã được gửi. Cảm ơn bạn!');
+            })
+            .catch(() => showToast('❌ Gửi báo cáo thất bại. Vui lòng thử lại.'));
+    }
+
+    document.addEventListener('keydown', e => {
+        if (e.key === 'Escape') {
+            closeReport();
+            closeLightbox();
+        }
+    });
+</script>
+</body>
+</html>

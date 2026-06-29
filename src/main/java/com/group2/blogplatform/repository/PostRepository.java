@@ -15,10 +15,9 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     @Query("""
                 select p 
                 from Post p 
-                where p.id < :id 
-                order by p.id desc 
+                order by p.isPinned desc, p.createdAt desc
             """)
-    List<Post> getPostByCursor(@Param("id") Long currentPage, Pageable pageable);
+    List<Post> getPostByPinnedAndCreated(Pageable pageable);
 
     @Query("""
                 select p 

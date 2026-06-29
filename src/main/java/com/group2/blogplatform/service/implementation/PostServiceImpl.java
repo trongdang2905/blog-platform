@@ -48,15 +48,11 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public List<PostDTO> getPosts(Long currentPage) {
-        long size = postRepository.countPost();
-        Pageable pageable = PageRequest.of(0, 10);
-        int totalPages = (int) Math.ceil((double) size / 10);
-        if (totalPages == currentPage) {
-            pageable = PageRequest.of(0, (int) (size - (currentPage - 1) * 10));
-        }
+    public List<PostDTO> getPosts(Long page) {
 
-        List<PostDTO> list = postRepository.getPostByCursor(currentPage * 10 + 1, pageable)
+        Pageable pageable = PageRequest.of(page.intValue() - 1, 10);
+
+        List<PostDTO> list = postRepository.getPostByPinnedAndCreated(pageable)
                 .stream()
                 .map(post ->
                         new PostDTO().builder()

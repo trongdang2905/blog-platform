@@ -40,7 +40,7 @@
                         </td>
                         <td>
                             <div th:if="${report.post != null}">
-                                <a th:href="@{/posts/{id}(id=${report.post.id})}" target="_blank" class="text-decoration-none fw-semibold text-primary" th:text="${report.post.title}">
+                                <a th:href="@{/user/post/{id}(id=${report.post.id})}" target="_blank" class="text-decoration-none fw-semibold text-primary" th:text="${report.post.title}">
                                     Sample Post Title
                                 </a>
                             </div>

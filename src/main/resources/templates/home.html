@@ -949,99 +949,7 @@
             </div>
         </div>
 
-        <!-- Static fallback -->
-        <!--        <div th:if="${#lists.isEmpty(posts)}">-->
-        <!--            <div class="post-card">-->
-        <!--                <a href="#" class="post-card-link">-->
-        <!--                    <div class="post-meta">-->
-        <!--                        <div class="avatar" style="background:#2563eb">N</div>-->
-        <!--                        <span class="post-author">nguyendev</span>-->
-        <!--                        <span class="post-time">2 giờ trước</span>-->
-        <!--                        <span class="topic-badge">Công nghệ</span>-->
-        <!--                    </div>-->
-        <!--                    <div class="post-title">Spring Boot 3 có gì mới? Tổng hợp các tính năng đáng chú ý nhất</div>-->
-        <!--                    <div class="post-excerpt">Sau một thời gian sử dụng Spring Boot 3, mình tổng hợp lại các điểm khác-->
-        <!--                        biệt so với phiên bản 2.x, đặc biệt là native image support và virtual threads...-->
-        <!--                    </div>-->
-        <!--                </a>-->
-        <!--                <div class="post-footer">-->
-        <!--                    <span class="stat">💬 24</span><span class="stat">❤️ 87</span><span class="stat">👁️ 1.2k</span>-->
-        <!--                    <span class="hot-badge">🔥 Hot</span>-->
-        <!--                    <div class="post-actions">-->
-        <!--                        <button class="icon-btn save" data-id="1" onclick="toggleSave(this)">🔖 <span class="save-label">Lưu</span>-->
-        <!--                        </button>-->
-        <!--                        <button class="icon-btn report" data-id="1" onclick="openReport(this)">🚩 Báo cáo</button>-->
-        <!--                    </div>-->
-        <!--                </div>-->
-        <!--            </div>-->
-        <!--            <div class="post-card">-->
-        <!--                <a href="#" class="post-card-link">-->
-        <!--                    <div class="post-meta">-->
-        <!--                        <div class="avatar" style="background:#0f6e56">T</div>-->
-        <!--                        <span class="post-author">trangstudy</span>-->
-        <!--                        <span class="post-time">5 giờ trước</span>-->
-        <!--                        <span class="topic-badge" style="background:#e1f5ee;color:#0f6e56">Học tập</span>-->
-        <!--                    </div>-->
-        <!--                    <div class="post-title">Mình đã luyện IELTS 6.5 trong 3 tháng như thế nào?</div>-->
-        <!--                    <div class="post-excerpt">Chia sẻ lộ trình tự học IELTS của mình từ 5.0 lên 6.5 chỉ trong 3 tháng.-->
-        <!--                        Tài liệu miễn phí, không cần đi lớp, chỉ cần đúng phương pháp...-->
-        <!--                    </div>-->
-        <!--                </a>-->
-        <!--                <div class="post-footer">-->
-        <!--                    <span class="stat">💬 41</span><span class="stat">❤️ 203</span><span class="stat">👁️ 3.4k</span>-->
-        <!--                    <span class="hot-badge">🔥 Hot</span>-->
-        <!--                    <div class="post-actions">-->
-        <!--                        <button class="icon-btn save" data-id="2" onclick="toggleSave(this)">🔖 <span class="save-label">Lưu</span>-->
-        <!--                        </button>-->
-        <!--                        <button class="icon-btn report" data-id="2" onclick="openReport(this)">🚩 Báo cáo</button>-->
-        <!--                    </div>-->
-        <!--                </div>-->
-        <!--            </div>-->
-        <!--            <div class="post-card">-->
-        <!--                <a href="#" class="post-card-link">-->
-        <!--                    <div class="post-meta">-->
-        <!--                        <div class="avatar" style="background:#7c3aed">M</div>-->
-        <!--                        <span class="post-author">minh.travel</span>-->
-        <!--                        <span class="post-time">1 ngày trước</span>-->
-        <!--                        <span class="topic-badge" style="background:#fbeaf0;color:#993556">Du lịch</span>-->
-        <!--                    </div>-->
-        <!--                    <div class="post-title">Review chuyến đi Đà Lạt 4 ngày 3 đêm với 2 triệu đồng</div>-->
-        <!--                    <div class="post-excerpt">Đi Đà Lạt mà chỉ tốn 2 triệu toàn bộ chi phí? Mình sẽ chia sẻ toàn bộ lịch-->
-        <!--                        trình, chỗ ở, ăn uống và các mẹo tiết kiệm mình đã áp dụng...-->
-        <!--                    </div>-->
-        <!--                </a>-->
-        <!--                <div class="post-footer">-->
-        <!--                    <span class="stat">💬 18</span><span class="stat">❤️ 56</span><span class="stat">👁️ 890</span>-->
-        <!--                    <div class="post-actions">-->
-        <!--                        <button class="icon-btn save" data-id="3" onclick="toggleSave(this)">🔖 <span class="save-label">Lưu</span>-->
-        <!--                        </button>-->
-        <!--                        <button class="icon-btn report" data-id="3" onclick="openReport(this)">🚩 Báo cáo</button>-->
-        <!--                    </div>-->
-        <!--                </div>-->
-        <!--            </div>-->
-        <!--            <div class="post-card">-->
-        <!--                <a href="#" class="post-card-link">-->
-        <!--                    <div class="post-meta">-->
-        <!--                        <div class="avatar" style="background:#d97706">H</div>-->
-        <!--                        <span class="post-author">hoanganh99</span>-->
-        <!--                        <span class="post-time">1 ngày trước</span>-->
-        <!--                        <span class="topic-badge">Công nghệ</span>-->
-        <!--                    </div>-->
-        <!--                    <div class="post-title">So sánh React vs Vue năm 2025 — nên học cái nào?</div>-->
-        <!--                    <div class="post-excerpt">Câu hỏi muôn thuở mà mình thấy hỏi mãi trên các diễn đàn. Sau khi làm cả-->
-        <!--                        hai framework, đây là góc nhìn thực tế của mình...-->
-        <!--                    </div>-->
-        <!--                </a>-->
-        <!--                <div class="post-footer">-->
-        <!--                    <span class="stat">💬 67</span><span class="stat">❤️ 145</span><span class="stat">👁️ 2.1k</span>-->
-        <!--                    <div class="post-actions">-->
-        <!--                        <button class="icon-btn save" data-id="4" onclick="toggleSave(this)">🔖 <span class="save-label">Lưu</span>-->
-        <!--                        </button>-->
-        <!--                        <button class="icon-btn report" data-id="4" onclick="openReport(this)">🚩 Báo cáo</button>-->
-        <!--                    </div>-->
-        <!--                </div>-->
-        <!--            </div>-->
-        <!--        </div>-->
+
         <!-- PAGINATION -->
         <div class="pagination" th:if="${totalPages > 1}">
 
@@ -1368,7 +1276,7 @@
         const note = document.getElementById('reportNote').value.trim();
         if (!reason || !currentReportPostId) return;
         const body = new URLSearchParams({postId: currentReportPostId, reason, note});
-        fetch('/user/post/report', {
+        fetch('/user/report/create', {
             method: 'POST',
             headers: {'Content-Type': 'application/x-www-form-urlencoded', 'X-Requested-With': 'XMLHttpRequest'},
             body: body.toString()

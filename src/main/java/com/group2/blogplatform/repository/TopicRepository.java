@@ -6,6 +6,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 public interface TopicRepository extends JpaRepository<Topic, Integer> {
 
@@ -18,4 +20,11 @@ public interface TopicRepository extends JpaRepository<Topic, Integer> {
         if (id == null) return null;
         return findByID(id.intValue());
     }
+
+    @Query("""
+            select t 
+            from Topic t 
+            where t.isActive = true 
+            """)
+    List<Topic> getAllTopics();
 }

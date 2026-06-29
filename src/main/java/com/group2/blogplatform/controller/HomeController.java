@@ -27,11 +27,11 @@ public class HomeController {
                           @RequestParam(defaultValue = "1") int currentPage) {
         int pageSize = 10;
         List<PostDTO> posts = postService.getPosts((long) currentPage);
-        int lastRecord = posts.getLast().getId().intValue();
+
         long totalPosts = postService.countPosts();
         int totalPages = (int) Math.ceil((double) totalPosts / pageSize);
 
-        model.addAttribute("lastRecord", lastRecord);
+
         model.addAttribute("posts", posts);
         model.addAttribute("currentPage", currentPage);
         model.addAttribute("totalPages", totalPages);

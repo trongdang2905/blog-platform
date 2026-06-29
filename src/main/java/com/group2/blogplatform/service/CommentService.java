@@ -13,4 +13,6 @@ public interface CommentService {
     List<CommentResponse> getVisibleCommentsByPost(Long postId);
 
     long countVisibleComments(Long postId);
+
+    CommentResponse createCommentToAppend(CreateCommentRequest request);
 }

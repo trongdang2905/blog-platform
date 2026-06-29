@@ -16,7 +16,7 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
             select c
             from Comment c
             where c.post.id = :postId and c.statusComment = :status
-            order by c.createdAt asc
+            order by c.id desc 
             """)
     List<Comment> findVisibleByPostId(@Param("postId") Long postId, @Param("status") StatusComment status);
 

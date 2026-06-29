@@ -14,6 +14,9 @@ import com.group2.blogplatform.service.CommentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Service
@@ -60,16 +63,41 @@ public class CommentServiceImpl implements CommentService {
                 .map(c -> new CommentResponse(
                         c.getId(),
                         c.getContent(),
-                        c.getCreatedAt(),
+                        formatTime(c.getCreatedAt()),
                         c.getUser().getId(),
                         c.getUser().getUsername(),
                         c.getUser().getId().equals(CURRENT_USER_ID)
-                ))
-                .toList();
+                )).toList();
+
     }
 
     @Override
     public long countVisibleComments(Long postId) {
         return commentRepository.countByPost_IdAndStatusComment(postId, StatusComment.VISIBLE);
+    }
+
+    @Override
+    public CommentResponse createCommentToAppend(CreateCommentRequest request) {
+        Post post = postRepository.findById(request.getPostId()).orElse(null);
+        User user = userRepository.findByID(CURRENT_USER_ID);
+        Comment comment = new Comment();
+        comment.setContent(request.getContent().trim());
+        comment.setPost(post);
+        comment.setUser(user);
+        comment.setStatusComment(StatusComment.VISIBLE);
+        commentRepository.save(comment);
+        CommentResponse commentResponse = new CommentResponse().builder()
+                .id(comment.getId())
+                .content(comment.getContent())
+                .createdAt(formatTime(comment.getCreatedAt()))
+                .userId(comment.getUser().getId())
+                .username(comment.getUser().getUsername())
+                .ownedByCurrentUser(false)
+                .build();
+        return commentResponse;
+    }
+
+    private String formatTime(LocalDateTime createdAt) {
+        return createdAt.format(DateTimeFormatter.ofPattern("HH:mm dd-MM-yyyy"));
     }
 }

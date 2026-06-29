@@ -30,13 +30,8 @@ public class TopicServiceImpl implements TopicService {
 
     @Override
     public List<PostDTO> findAllPostsByTopic(Long currentPage, Long topicId) {
-        long size = postRepository.countPost();
-        Pageable pageable = PageRequest.of(0, 10);
-        int totalPages = (int) Math.ceil((double) size / 10);
-        if (totalPages == currentPage) {
-            pageable = PageRequest.of(0, (int) (size - (currentPage - 1) * 10));
-        }
-        List<PostDTO> list = postRepository.getPostByTopicIDCursor(currentPage * 10 + 1, topicId, pageable)
+
+        List<PostDTO> list = postRepository.getPostByTopicID(topicId)
                 .stream()
                 .map(post ->
                         new PostDTO().builder()

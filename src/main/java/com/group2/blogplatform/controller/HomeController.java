@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
 
@@ -21,10 +22,21 @@ public class HomeController {
     private final TopicService topicService;
 
     @GetMapping("/")
-    public String getHome(Model model, HttpSession session) {
-        List<PostDTO> posts = postService.getPosts(1L);
-        List<Topic> topics = topicService.findAll();
+    public String getHome(Model model,
+                          HttpSession session,
+                          @RequestParam(defaultValue = "1") int currentPage) {
+        int pageSize = 10;
+        List<PostDTO> posts = postService.getPosts((long) currentPage);
+        int lastRecord = posts.getLast().getId().intValue();
+        long totalPosts = postService.countPosts();
+        int totalPages = (int) Math.ceil((double) totalPosts / pageSize);
+
+        model.addAttribute("lastRecord", lastRecord);
         model.addAttribute("posts", posts);
+        model.addAttribute("currentPage", currentPage);
+        model.addAttribute("totalPages", totalPages);
+
+        List<Topic> topics = topicService.findAll();
         session.setAttribute("topics", topics);
         return "home";
     }

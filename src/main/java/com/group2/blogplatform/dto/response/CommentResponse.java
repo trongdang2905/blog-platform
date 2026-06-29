@@ -1,9 +1,6 @@
 package com.group2.blogplatform.dto.response;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
@@ -11,11 +8,17 @@ import java.time.LocalDateTime;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class CommentResponse {
+@Builder
+public class CommentResponse implements Comparable<CommentResponse> {
     private Long id;
     private String content;
-    private LocalDateTime createdAt;
+    private String createdAt;
     private Long userId;
     private String username;
     private boolean ownedByCurrentUser;
+
+    @Override
+    public int compareTo(CommentResponse o) {
+        return this.getId().compareTo(o.getId());
+    }
 }

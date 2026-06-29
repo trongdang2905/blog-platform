@@ -23,10 +23,10 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     @Query("""
                 select p 
                 from Post p 
-                where p.id < :id and p.topic.id = :topicId
+                where p.topic.id = :topicId
                 order by p.id desc 
             """)
-    List<Post> getPostByTopicIDCursor(@Param("id") Long currentPage, @Param("topicId") Long topicId, Pageable pageable);
+    List<Post> getPostByTopicID(@Param("topicId") Long topicId);
 
     @Query("""
             select count(p)
@@ -34,6 +34,14 @@ public interface PostRepository extends JpaRepository<Post, Long> {
             where p.statusPost = 'PUBLISHED'
             """)
     long countPost();
+
+    @Query("""
+            select count(p)
+            from Post p 
+            where p.statusPost = 'PUBLISHED' and p.topic.id = :topicId
+            """)
+    long countPostByTopicID(@Param("topicId") Long topicId);
+
 
     @Query("""
             select p 

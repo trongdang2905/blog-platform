@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Service
@@ -132,10 +133,13 @@ public class PostServiceImpl implements PostService {
         return dto;
     }
 
+    @Override
+    public long countPosts() {
+        return postRepository.countPost();
+    }
+
     private String calculateDuration(LocalDateTime dateTime) {
-        LocalDateTime now = LocalDateTime.now();
-        Duration duration = Duration.between(dateTime, now);
-        return String.format("%s giờ trước", duration.toHours());
+        return dateTime.format(DateTimeFormatter.ofPattern("HH:mm dd-MM-YY"));
     }
 
     private boolean checkSaved(Long userId, Long postId) {

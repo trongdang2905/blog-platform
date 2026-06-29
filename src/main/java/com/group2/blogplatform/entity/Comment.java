@@ -6,6 +6,7 @@ import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 @Entity
 @Table(name = "comments")
@@ -34,4 +35,8 @@ public class Comment {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
+
+    public String formatTime() {
+        return createdAt.format(DateTimeFormatter.ofPattern("HH:mm dd-MM-yyyy"));
+    }
 }

@@ -20,4 +20,6 @@ public interface PostService {
     List<PostDTO> searchPosts(String keyword);
 
     PostDTO getPost(Long postId);
+
+    long countPosts();
 }

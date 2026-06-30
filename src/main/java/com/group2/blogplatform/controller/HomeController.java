@@ -36,9 +36,9 @@ public class HomeController {
         model.addAttribute("currentPage", currentPage);
         model.addAttribute("totalPages", totalPages);
 
-        List<Topic> topics = topicService.findAll();
+        List<Topic> topics = topicService.findAllWithActive();
         session.setAttribute("topics", topics);
-        return "home";
+        return "member/home";
     }
 
 }

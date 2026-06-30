@@ -24,6 +24,11 @@ public class TopicServiceImpl implements TopicService {
     private final SavedPostRepository savedPostRepository;
 
     @Override
+    public List<Topic> findAllWithActive() {
+        return topicRepository.getAllTopicsWithActive();
+    }
+
+    @Override
     public List<Topic> findAll() {
         return topicRepository.getAllTopics();
     }
@@ -68,7 +73,6 @@ public class TopicServiceImpl implements TopicService {
     private boolean checkSaved(Long userId, Long postId) {
         return savedPostRepository.checkSavedByUserIdAndPostId(userId, postId);
     }
-
 
 
     @Override

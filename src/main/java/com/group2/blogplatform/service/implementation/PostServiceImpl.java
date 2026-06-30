@@ -3,13 +3,16 @@ package com.group2.blogplatform.service.implementation;
 import com.group2.blogplatform.dto.request.*;
 import com.group2.blogplatform.dto.response.*;
 import com.group2.blogplatform.entity.*;
+import com.group2.blogplatform.exception.ExcessImageException;
 import com.group2.blogplatform.repository.*;
+import com.group2.blogplatform.service.ImageKitService;
 import com.group2.blogplatform.service.PostService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -23,10 +26,11 @@ public class PostServiceImpl implements PostService {
     private final UserRepository userRepository;
     private final TopicRepository topicRepository;
     private final SavedPostRepository savedPostRepository;
+    private final ImageKitService  imageKitService;
 
 
     @Override
-    public CreatePostResponse createPost(CreatePostRequest createPostRequest) {
+    public CreatePostResponse createPost(CreatePostRequest createPostRequest) throws IOException, ExcessImageException {
         // Hard code vi chua co login
         User user = userRepository.findByID(1L);
         if (user == null) {
@@ -38,7 +42,7 @@ public class PostServiceImpl implements PostService {
         Post post = new Post().builder()
                 .title(createPostRequest.getTitle())
                 .content(createPostRequest.getContent())
-                .imageUrl(createPostRequest.getImageUrl())
+                .imageUrl(imageKitService.uploadImage(createPostRequest.getImage()))
                 .statusPost(StatusPost.PUBLISHED)
                 .topic(topic)
                 .user(user)

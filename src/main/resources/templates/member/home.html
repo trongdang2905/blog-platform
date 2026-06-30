@@ -127,7 +127,7 @@
 
         .search-input {
             width: 100%;
-            padding: 6px 36px 6px 30px;
+            padding: 6px 12px 6px 30px;
             border: 1px solid var(--border);
             border-right: none;
             border-radius: 6px 0 0 6px;
@@ -339,30 +339,6 @@
             color: var(--text-muted);
         }
 
-        .tabs {
-            display: flex;
-            gap: 2px;
-            background: var(--border);
-            border-radius: 6px;
-            padding: 2px;
-        }
-
-        .tab {
-            padding: 4px 10px;
-            border-radius: 4px;
-            font-size: 12px;
-            font-weight: 500;
-            cursor: pointer;
-            color: var(--text-muted);
-            border: none;
-            background: transparent;
-            transition: background 0.15s, color 0.15s;
-        }
-
-        .tab.active {
-            background: var(--surface);
-            color: var(--text);
-        }
 
         /* POST CARD */
         .post-card {
@@ -849,44 +825,14 @@
                         name="keyword"
                         placeholder="Tìm kiếm bài viết..."
                         th:value="${keyword}"
-                        oninput="onSearchInput(this)"
-                        onfocus="onSearchFocus()"
-                        onkeydown="onSearchKeydown(event)"
+
                 >
-                <button type="button" class="search-clear" id="searchClear" onclick="clearSearch()" title="Xoá">✕
-                </button>
+
             </div>
             <button type="submit" class="search-btn">Tìm</button>
         </form>
 
-        <!-- DROPDOWN gợi ý / lịch sử -->
-        <div class="search-dropdown" id="searchDropdown">
-            <!-- Lịch sử tìm kiếm -->
-            <div class="dropdown-section" id="historySection">
-                <div class="dropdown-label">Tìm kiếm gần đây</div>
-                <!-- Render bằng JS từ localStorage -->
-            </div>
-            <div class="dropdown-divider" id="historyDivider" style="display:none"></div>
-            <!-- Gợi ý chủ đề nhanh -->
-            <div class="dropdown-section">
-                <div class="dropdown-label">Chủ đề phổ biến</div>
-                <a class="dropdown-item" href="/user/post/search?keyword=Spring+Boot">
-                    <span class="item-icon">🔥</span>
-                    <div class="item-text"><strong>Spring Boot</strong></div>
-                    <span class="item-badge">Công nghệ</span>
-                </a>
-                <a class="dropdown-item" href="/user/post/search?keyword=IELTS">
-                    <span class="item-icon">🔥</span>
-                    <div class="item-text"><strong>IELTS</strong></div>
-                    <span class="item-badge">Học tập</span>
-                </a>
-                <a class="dropdown-item" href="/user/post/search?keyword=Du+lịch+rẻ">
-                    <span class="item-icon">🔥</span>
-                    <div class="item-text"><strong>Du lịch rẻ</strong></div>
-                    <span class="item-badge">Du lịch</span>
-                </a>
-            </div>
-        </div>
+
     </div>
 
     <div class="nav-right">
@@ -899,11 +845,7 @@
     <div>
         <div class="section-header">
             <span class="section-title">Bài viết</span>
-            <div class="tabs">
-                <button class="tab active">Mới nhất</button>
-                <button class="tab">Nổi bật</button>
-                <button class="tab">Theo dõi</button>
-            </div>
+
         </div>
 
         <!-- SEARCH RESULT BANNER (Thymeleaf — hiện khi có keyword) -->
@@ -916,7 +858,7 @@
             <button class="search-banner-clear" onclick="window.location.href='/'">✕ Xoá tìm kiếm</button>
         </div>
 
-        <!-- Thymeleaf post loop -->
+
         <div class="post-card" th:each="post : ${posts}">
             <a class="post-card-link" th:href="@{/user/post/{id}(id=${post.id})}">
                 <div class="post-meta">
@@ -931,9 +873,6 @@
                 <div class="post-excerpt" th:text="${#strings.abbreviate(post.content, 160)}">Nội dung...</div>
             </a>
             <div class="post-footer">
-                <span class="stat">💬 0</span>
-                <span class="stat">❤️ 0</span>
-                <span class="stat">👁️ 0</span>
                 <span class="hot-badge" th:if="${post.pinned}">📌 Ghim</span>
                 <div class="post-actions">
                     <button class="icon-btn save" th:attr="data-id=${post.id}"
@@ -1013,13 +952,6 @@
             <a class="topic-item" th:each="topic : ${session.topics}" th:href="@{/topics/{id}(id=${topic.id})}">
                 <span class="topic-name" th:text="${topic.name}">Chủ đề</span>
             </a>
-            <!--            <div th:if="${#lists.isEmpty(topics)}">-->
-            <!--                <a href="#" class="topic-item"><span class="topic-name">💻 Công nghệ</span><span class="topic-count">1.2k bài</span></a>-->
-            <!--                <a href="#" class="topic-item"><span class="topic-name">📚 Học tập</span><span class="topic-count">843 bài</span></a>-->
-            <!--                <a href="#" class="topic-item"><span class="topic-name">✈️ Du lịch</span><span class="topic-count">521 bài</span></a>-->
-            <!--                <a href="#" class="topic-item"><span class="topic-name">🎮 Giải trí</span><span class="topic-count">389 bài</span></a>-->
-            <!--                <a href="#" class="topic-item"><span class="topic-name">💼 Nghề nghiệp</span><span class="topic-count">274 bài</span></a>-->
-            <!--            </div>-->
         </div>
     </div>
 </div>
@@ -1077,139 +1009,7 @@
         toastTimer = setTimeout(() => el.classList.remove('show'), 3000);
     }
 
-    /* ════════════════════════════════════════
-       SEARCH
-    ════════════════════════════════════════ */
-    const HISTORY_KEY = 'fpt_search_history';
-    const MAX_HISTORY = 5;
-    let dropdownFocusIndex = -1;
-
-    function getHistory() {
-        try {
-            return JSON.parse(localStorage.getItem(HISTORY_KEY)) || [];
-        } catch {
-            return [];
-        }
-    }
-
-    function saveHistory(keyword) {
-        const kw = keyword.trim();
-        if (!kw) return;
-        let history = getHistory().filter(h => h !== kw);
-        history.unshift(kw);
-        history = history.slice(0, MAX_HISTORY);
-        localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
-    }
-
-    function removeHistory(kw, e) {
-        e.stopPropagation();
-        e.preventDefault();
-        const history = getHistory().filter(h => h !== kw);
-        localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
-        renderDropdown(document.getElementById('searchInput').value);
-    }
-
-    function renderDropdown(value) {
-        const history = getHistory();
-        const section = document.getElementById('historySection');
-        const divider = document.getElementById('historyDivider');
-
-        if (history.length === 0) {
-            section.style.display = 'none';
-            divider.style.display = 'none';
-            return;
-        }
-
-        section.style.display = 'block';
-        divider.style.display = 'block';
-
-        // Clear old history items (keep label)
-        const label = section.querySelector('.dropdown-label');
-        section.innerHTML = '';
-        section.appendChild(label);
-
-        history.forEach(kw => {
-            const item = document.createElement('div');
-            item.className = 'dropdown-item';
-            item.innerHTML = `
-                <span class="item-icon">🕐</span>
-                <div class="item-text"><strong>${escapeHtml(kw)}</strong></div>
-                <button onclick="removeHistory('${escapeHtml(kw)}', event)" style="background:none;border:none;cursor:pointer;font-size:13px;color:var(--text-muted);padding:2px 4px;" title="Xoá">✕</button>`;
-            item.addEventListener('mousedown', () => {
-                document.getElementById('searchInput').value = kw;
-                submitSearch(kw);
-            });
-            section.appendChild(item);
-        });
-    }
-
-    function escapeHtml(s) {
-        return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-    }
-
-    function onSearchInput(input) {
-        const clearBtn = document.getElementById('searchClear');
-        clearBtn.classList.toggle('show', input.value.length > 0);
-        dropdownFocusIndex = -1;
-    }
-
-    function onSearchFocus() {
-        renderDropdown(document.getElementById('searchInput').value);
-        document.getElementById('searchDropdown').classList.add('show');
-    }
-
-    function onSearchKeydown(e) {
-        const dropdown = document.getElementById('searchDropdown');
-        const items = dropdown.querySelectorAll('.dropdown-item');
-
-        if (e.key === 'ArrowDown') {
-            e.preventDefault();
-            dropdownFocusIndex = Math.min(dropdownFocusIndex + 1, items.length - 1);
-            updateFocus(items);
-        } else if (e.key === 'ArrowUp') {
-            e.preventDefault();
-            dropdownFocusIndex = Math.max(dropdownFocusIndex - 1, -1);
-            updateFocus(items);
-        } else if (e.key === 'Escape') {
-            closeDropdown();
-        } else if (e.key === 'Enter') {
-            if (dropdownFocusIndex >= 0 && items[dropdownFocusIndex]) {
-                e.preventDefault();
-                items[dropdownFocusIndex].dispatchEvent(new MouseEvent('mousedown'));
-            }
-        }
-    }
-
-    function updateFocus(items) {
-        items.forEach((item, i) => item.classList.toggle('focused', i === dropdownFocusIndex));
-        if (dropdownFocusIndex >= 0 && items[dropdownFocusIndex]) {
-            const strong = items[dropdownFocusIndex].querySelector('strong');
-            if (strong) document.getElementById('searchInput').value = strong.textContent;
-        }
-    }
-
-    function closeDropdown() {
-        document.getElementById('searchDropdown').classList.remove('show');
-        dropdownFocusIndex = -1;
-    }
-
-    // Click outside → close dropdown
-    document.addEventListener('mousedown', e => {
-        const wrap = document.querySelector('.nav-center');
-        if (!wrap.contains(e.target)) closeDropdown();
-    });
-
-    function clearSearch() {
-        const input = document.getElementById('searchInput');
-        input.value = '';
-        input.focus();
-        document.getElementById('searchClear').classList.remove('show');
-        renderDropdown('');
-        document.getElementById('searchDropdown').classList.add('show');
-    }
-
     function submitSearch(keyword) {
-        saveHistory(keyword);
         window.location.href = '/user/post/search?keyword=' + encodeURIComponent(keyword);
     }
 
@@ -1220,13 +1020,6 @@
         submitSearch(keyword);
     }
 
-    /* Show clear button if there's a keyword already (from Thymeleaf) */
-    window.addEventListener('DOMContentLoaded', () => {
-        const input = document.getElementById('searchInput');
-        if (input.value) {
-            document.getElementById('searchClear').classList.add('show');
-        }
-    });
 
     /* ── SAVE ── */
     function toggleSave(btn) {

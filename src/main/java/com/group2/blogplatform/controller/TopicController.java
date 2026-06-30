@@ -22,6 +22,6 @@ public class TopicController {
     public String getPostByTopic(@PathVariable("id") Long topicId, Model model) {
         List<PostDTO> posts = topicService.findAllPostsByTopic(1L, topicId);
         model.addAttribute("posts", posts);
-        return "home";
+        return "member/home";
     }
 }

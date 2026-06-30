@@ -5,16 +5,20 @@ import com.group2.blogplatform.dto.response.CreatePostResponse;
 import com.group2.blogplatform.dto.response.PostDTO;
 import com.group2.blogplatform.entity.Post;
 import com.group2.blogplatform.entity.Topic;
+import com.group2.blogplatform.exception.ExcessImageException;
 import com.group2.blogplatform.service.PostService;
 import com.group2.blogplatform.service.TopicService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import com.group2.blogplatform.service.CommentService;
 import com.group2.blogplatform.service.LikeService;
 
+import java.io.IOException;
 import java.util.List;
 
 @Controller
@@ -30,14 +34,19 @@ public class PostController {
 
     @GetMapping("/create")
     public String getViewPost(Model model) {
-        return "create-post";
+        return "member/create-post";
     }
 
     @PostMapping("/create")
-    public String createPost(@ModelAttribute CreatePostRequest dto, Model model) {
+    public String createPost(@Valid @ModelAttribute CreatePostRequest dto, BindingResult bindingResult, Model model) throws IOException, ExcessImageException {
+        if (bindingResult.hasErrors()) {
+            CreatePostResponse response = new CreatePostResponse(false, bindingResult.getFieldError().getDefaultMessage());
+            model.addAttribute("response", response);
+            return "member/create-post";
+        }
         CreatePostResponse response = postService.createPost(dto);
         model.addAttribute("response", response);
-        return "create-post";
+        return "member/create-post";
     }
 
     @PostMapping("/save")
@@ -59,7 +68,7 @@ public class PostController {
         List<PostDTO> posts = postService.searchPosts(keyword);
         model.addAttribute("keyword", keyword);
         model.addAttribute("posts", posts);
-        return "home";
+        return "member/home";
     }
 
     @GetMapping("/{id}")
@@ -74,7 +83,7 @@ public class PostController {
         model.addAttribute("likeCount", likeService.countLikes(postId));
         model.addAttribute("likedByCurrentUser", likeService.isLikedByCurrentUser(postId));
 
-        return "post-detail";
+        return "member/post-detail";
     }
 
 

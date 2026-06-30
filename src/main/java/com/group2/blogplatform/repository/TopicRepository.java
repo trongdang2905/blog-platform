@@ -24,7 +24,13 @@ public interface TopicRepository extends JpaRepository<Topic, Integer> {
     @Query("""
             select t 
             from Topic t 
-            where t.isActive = true 
             """)
     List<Topic> getAllTopics();
+
+    @Query("""
+            select t 
+            from Topic t 
+            where t.isActive = true
+            """)
+    List<Topic> getAllTopicsWithActive();
 }

@@ -19,7 +19,6 @@ public class PostDTO {
     private String topicName;
     private boolean isPinned;
     private String duration;
-    private boolean saved;
     private List<Comment> comments;
     private String imageUrl;
 }

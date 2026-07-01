@@ -3,11 +3,11 @@ package com.group2.blogplatform.controller;
 import com.group2.blogplatform.dto.request.CreatePostRequest;
 import com.group2.blogplatform.dto.response.CreatePostResponse;
 import com.group2.blogplatform.dto.response.PostDTO;
-import com.group2.blogplatform.entity.Post;
-import com.group2.blogplatform.entity.Topic;
+import com.group2.blogplatform.dto.response.SaveResponse;
+import com.group2.blogplatform.entity.User;
 import com.group2.blogplatform.exception.ExcessImageException;
 import com.group2.blogplatform.service.PostService;
-import com.group2.blogplatform.service.TopicService;
+import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -38,29 +38,63 @@ public class PostController {
     }
 
     @PostMapping("/create")
-    public String createPost(@Valid @ModelAttribute CreatePostRequest dto, BindingResult bindingResult, Model model) throws IOException, ExcessImageException {
+    public String createPost(@Valid @ModelAttribute CreatePostRequest dto,
+                             BindingResult bindingResult,
+                             Model model,
+                             HttpSession session) throws IOException, ExcessImageException {
+
+        User user = (User) session.getAttribute("user");
+        if (user == null) {
+            return "redirect:/auth/login";
+        }
+
         if (bindingResult.hasErrors()) {
             CreatePostResponse response = new CreatePostResponse(false, bindingResult.getFieldError().getDefaultMessage());
             model.addAttribute("response", response);
             return "member/create-post";
         }
-        CreatePostResponse response = postService.createPost(dto);
+        CreatePostResponse response = postService.createPost(user, dto);
         model.addAttribute("response", response);
         return "member/create-post";
     }
 
-    @PostMapping("/save")
-    @ResponseBody
-    public ResponseEntity<Void> savePost(@RequestParam(name = "postId") Long postId, Model model) {
-        postService.savePost(1L, postId);
-        return ResponseEntity.ok().build();
+    @GetMapping("/save")
+    public String savePost(@RequestParam(name = "postId") Long postId,
+                           Model model,
+                           HttpSession session) {
+        User user = (User) session.getAttribute("user");
+        if (user == null) {
+            return "redirect:/auth/login";
+        }
+        SaveResponse response = postService.savePost(user.getId(), postId);
+        model.addAttribute("response", response);
+        return "member/post-detail";
     }
 
-    @PostMapping("/unsave")
-    @ResponseBody
-    public ResponseEntity<Void> unsavePost(@RequestParam(name = "postId") Long postId, Model model) {
-        postService.unsavePost(1L, postId);
-        return ResponseEntity.ok().build();
+    @GetMapping("/unsave")
+    public String unsavePost(@RequestParam(name = "postId") Long postId,
+                             Model model,
+                             HttpSession session) {
+        User user = (User) session.getAttribute("user");
+        if (user == null) {
+            return "redirect:/auth/login";
+        }
+        SaveResponse response = postService.unsavePost(user.getId(), postId);
+        model.addAttribute("response", response);
+        List<PostDTO> posts = postService.getSavedPosts(user.getId());
+        model.addAttribute("posts", posts);
+        return "member/saved-post";
+    }
+
+    @GetMapping("/saved-posts")
+    public String getSavedPosts(Model model, HttpSession session) {
+        User user = (User) session.getAttribute("user");
+        if (user == null) {
+            return "redirect:/auth/login";
+        }
+        List<PostDTO> posts = postService.getSavedPosts(user.getId());
+        model.addAttribute("posts", posts);
+        return "member/saved-post";
     }
 
     @GetMapping("/search")
@@ -72,17 +106,26 @@ public class PostController {
     }
 
     @GetMapping("/{id}")
-    public String getDetailPost(@PathVariable("id") Long postId, Model model) {
+    public String getDetailPost(@PathVariable("id") Long postId, Model model, HttpSession session) {
         PostDTO post = postService.getPost(postId);
+        session.setAttribute("post", post);
         model.addAttribute("post", post);
 
         // UC04/UC05 - bo sung du lieu de hien thi comment, like, report tren trang chi tiet
         model.addAttribute("postId", postId);
-        model.addAttribute("comments", commentService.getVisibleCommentsByPost(postId));
-        model.addAttribute("commentCount", commentService.countVisibleComments(postId));
-        model.addAttribute("likeCount", likeService.countLikes(postId));
-        model.addAttribute("likedByCurrentUser", likeService.isLikedByCurrentUser(postId));
+        session.setAttribute("postId", postId);
 
+        model.addAttribute("comments", commentService.getVisibleCommentsByPost(postId));
+        session.setAttribute("comments", commentService.getVisibleCommentsByPost(postId));
+
+        model.addAttribute("commentCount", commentService.countVisibleComments(postId));
+        session.setAttribute("commentCount", commentService.countVisibleComments(postId));
+
+        model.addAttribute("likeCount", likeService.countLikes(postId));
+        session.setAttribute("likeCount", likeService.countLikes(postId));
+
+        model.addAttribute("likedByCurrentUser", likeService.isLikedByCurrentUser(postId));
+        session.setAttribute("likedByCurrentUser", likeService.isLikedByCurrentUser(postId));
         return "member/post-detail";
     }
 

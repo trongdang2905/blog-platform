@@ -836,8 +836,18 @@
     </div>
 
     <div class="nav-right">
-        <a href="/auth/login" class="btn btn-ghost">Đăng nhập</a>
-        <a href="/auth/register" class="btn btn-primary">Đăng ký</a>
+        <th:block th:if="${session.user == null}">
+            <a href="/auth/login" class="btn btn-ghost">Đăng nhập</a>
+            <a href="/auth/register" class="btn btn-primary">Đăng ký</a>
+        </th:block>
+
+        <!-- Đã đăng nhập -->
+        <th:block th:if="${session.user != null}">
+        <span style="font-size:13px;font-weight:500;color:var(--text-muted)"
+              th:text="${session.user.username}">username</span>
+            <a href="/user/post/saved-posts" class="btn btn-ghost">Bài viết đã lưu</a>
+            <a href="/auth/logout" class="btn btn-ghost">Đăng xuất</a>
+        </th:block>
     </div>
 </nav>
 
@@ -875,11 +885,6 @@
             <div class="post-footer">
                 <span class="hot-badge" th:if="${post.pinned}">📌 Ghim</span>
                 <div class="post-actions">
-                    <button class="icon-btn save" th:attr="data-id=${post.id}"
-                            th:classappend="${post.saved} ? 'saved' : ''"
-                            onclick="toggleSave(this)" title="Lưu bài viết">
-                        🔖 <span class="save-label" th:text="${post.saved} ? 'Đã lưu' : 'Lưu'">Lưu</span>
-                    </button>
                     <button class="icon-btn report" th:attr="data-id=${post.id}"
                             onclick="openReport(this)" title="Báo cáo bài viết">
                         🚩 Báo cáo

@@ -26,13 +26,12 @@ public class PostServiceImpl implements PostService {
     private final UserRepository userRepository;
     private final TopicRepository topicRepository;
     private final SavedPostRepository savedPostRepository;
-    private final ImageKitService  imageKitService;
+    private final ImageKitService imageKitService;
 
 
     @Override
-    public CreatePostResponse createPost(CreatePostRequest createPostRequest) throws IOException, ExcessImageException {
-        // Hard code vi chua co login
-        User user = userRepository.findByID(1L);
+    public CreatePostResponse createPost(User user, CreatePostRequest createPostRequest) throws IOException, ExcessImageException {
+
         if (user == null) {
             return new CreatePostResponse(false, "User not found");
         }
@@ -67,7 +66,6 @@ public class PostServiceImpl implements PostService {
                                 .username(post.getUser().getUsername())
                                 .duration(calculateDuration(post.getCreatedAt()))
                                 .topicName(post.getTopic().getName())
-                                .saved(checkSaved(1L, post.getId()))
                                 .build())
                 .toList();
 
@@ -75,26 +73,59 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public SavedPost savePost(Long userId, Long postId) {
+    public List<PostDTO> getSavedPosts(Long userID) {
+        List<Post> list = savedPostRepository.findAllByUserId(userID)
+                .stream()
+                .map(savedPost -> savedPost.getPost()).toList();
+        List<PostDTO> postDto = list
+                .stream()
+                .map(post ->
+                        new PostDTO().builder()
+                                .id(post.getId())
+                                .title(post.getTitle())
+                                .content(post.getContent())
+                                .isPinned(post.isPinned())
+                                .username(post.getUser().getUsername())
+                                .duration(calculateDuration(post.getCreatedAt()))
+                                .topicName(post.getTopic().getName())
+                                .build())
+                .toList();
+        return postDto;
+    }
+
+    @Override
+    public SaveResponse savePost(Long userId, Long postId) {
+
+        if (savedPostRepository.checkSavedByUserIdAndPostId(userId, postId)) {
+            return new SaveResponse(false, "You have already saved post!");
+        }
+
         User user = userRepository.findByID(userId);
+
+        if (user == null) {
+            return new SaveResponse(false, "User not found!");
+        }
         Post post = postRepository.findByID(postId);
+        if (post == null) {
+            return new SaveResponse(false, "Post not found!");
+        }
         SavedPost savedPost = new SavedPost()
                 .builder()
                 .post(post)
                 .user(user)
                 .build();
         savedPostRepository.save(savedPost);
-        return savedPost;
+        return new SaveResponse(true, "Post saved successfully!");
     }
 
     @Override
-    public SavedPost unsavePost(Long userId, Long postId) {
+    public SaveResponse unsavePost(Long userId, Long postId) {
         SavedPost savedPost = savedPostRepository.findByUserIdAndPostId(userId, postId);
         if (savedPost == null) {
-            return null;
+            return new SaveResponse(false, "Can not find saved post!");
         }
         savedPostRepository.delete(savedPost);
-        return savedPost;
+        return new SaveResponse(true, "Post unsaved successfully!");
     }
 
     @Override
@@ -109,7 +140,6 @@ public class PostServiceImpl implements PostService {
                         .username(post.getUser().getUsername())
                         .duration(calculateDuration(post.getCreatedAt()))
                         .topicName(post.getTopic().getName())
-                        .saved(checkSaved(1L, post.getId()))
                         .build())
                 .toList();
         return list;
@@ -126,7 +156,6 @@ public class PostServiceImpl implements PostService {
                 .username(post.getUser().getUsername())
                 .duration(calculateDuration(post.getCreatedAt()))
                 .topicName(post.getTopic().getName())
-                .saved(checkSaved(1L, post.getId()))
                 .comments(post.getComments())
                 .imageUrl(post.getImageUrl())
                 .build();
@@ -142,7 +171,5 @@ public class PostServiceImpl implements PostService {
         return dateTime.format(DateTimeFormatter.ofPattern("HH:mm dd-MM-YY"));
     }
 
-    private boolean checkSaved(Long userId, Long postId) {
-        return savedPostRepository.checkSavedByUserIdAndPostId(userId, postId);
-    }
+
 }

@@ -6,6 +6,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 public interface SavedPostRepository extends JpaRepository<SavedPost, Long> {
     @Query("""
@@ -14,6 +16,13 @@ public interface SavedPostRepository extends JpaRepository<SavedPost, Long> {
             where s.user.id = :userId and s.post.id = :postId
             """)
     SavedPost findByUserIdAndPostId(@Param("userId") Long userId, @Param("postId") Long postId);
+
+    @Query("""
+            select s 
+            from SavedPost s 
+            where s.user.id = :id
+            """)
+    List<SavedPost> findAllByUserId(@Param("id") Long userId);
 
     @Query("""
             select (count(s) > 0)

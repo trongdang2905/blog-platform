@@ -47,7 +47,6 @@ public class TopicServiceImpl implements TopicService {
                                 .username(post.getUser().getUsername())
                                 .duration(calculateDuration(post.getCreatedAt()))
                                 .topicName(post.getTopic().getName())
-                                .saved(checkSaved(1L, post.getId()))
                                 .build())
                 .toList();
         return list;

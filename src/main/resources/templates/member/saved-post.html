@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="https://www.thymeleaf.org/">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bài viết đã lưu – ForumFPT</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg: #f5f4f0;
+            --surface: #ffffff;
+            --border: #e4e2db;
+            --text: #1a1a18;
+            --text-muted: #7a7870;
+            --accent: #2563eb;
+            --accent-light: #eff6ff;
+            --saved: #d97706;
+            --saved-bg: #fffbeb;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        nav {
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            padding: 0 24px;
+            height: 52px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .logo {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--accent);
+            letter-spacing: -0.3px;
+            text-decoration: none;
+        }
+
+        .logo span {
+            color: var(--text);
+        }
+
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn {
+            padding: 6px 14px;
+            border-radius: 6px;
+            font-size: 13px;
+            cursor: pointer;
+            border: none;
+            font-weight: 500;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            transition: opacity 0.15s;
+        }
+
+        .btn:hover {
+            opacity: 0.85;
+        }
+
+        .btn-ghost {
+            background: transparent;
+            color: var(--text-muted);
+            border: 1px solid var(--border);
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: #fff;
+        }
+
+        .layout {
+            max-width: 720px;
+            margin: 24px auto 48px;
+            padding: 0 16px;
+        }
+
+        .page-header {
+            margin-bottom: 20px;
+        }
+
+        .page-header h1 {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .page-header p {
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        .post-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 16px;
+            transition: border-color 0.15s;
+        }
+
+        .post-card:hover {
+            border-color: var(--accent);
+        }
+
+        .post-card-link {
+            text-decoration: none;
+            color: inherit;
+            flex: 1;
+        }
+
+        .post-meta {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 6px;
+        }
+
+        .post-author {
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .post-time {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .topic-badge {
+            font-size: 11px;
+            padding: 2px 7px;
+            border-radius: 4px;
+            font-weight: 500;
+            background: var(--accent-light);
+            color: var(--accent);
+        }
+
+        .post-title {
+            font-size: 15px;
+            font-weight: 600;
+            margin-bottom: 4px;
+            line-height: 1.4;
+        }
+
+        .post-excerpt {
+            font-size: 13px;
+            color: var(--text-muted);
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .unsave-btn {
+            flex-shrink: 0;
+            font-size: 12px;
+            padding: 5px 10px;
+            border-radius: 6px;
+            border: 1px solid var(--border);
+            text-decoration: none;
+            color: var(--text-muted);
+            white-space: nowrap;
+            transition: all 0.15s;
+        }
+
+        .unsave-btn:hover {
+            border-color: var(--saved);
+            background: var(--saved-bg);
+            color: var(--saved);
+        }
+
+        .empty {
+            text-align: center;
+            padding: 60px 0;
+            color: var(--text-muted);
+        }
+
+        .empty .icon {
+            font-size: 36px;
+            margin-bottom: 10px;
+        }
+
+        .empty p {
+            font-size: 14px;
+            margin-bottom: 16px;
+        }
+        .banner-icon {
+            font-size: 18px;
+            flex-shrink: 0;
+            line-height: 1.3;
+        }
+
+        .banner-body {
+            flex: 1;
+        }
+
+        .response-banner {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 14px 16px;
+            border-radius: 9px;
+            border: 1px solid;
+            margin-bottom: 20px;
+            font-size: 13px;
+            line-height: 1.5;
+            animation: slideDown 0.3s ease;
+        }
+
+        .response-banner.success {
+            background: #f0fdf4;
+            border-color: #86efac;
+            color: #166534;
+        }
+
+        .response-banner.error {
+            background: #fef2f2;
+            border-color: #fca5a5;
+            color: #991b1b;
+        }
+    </style>
+</head>
+<body>
+
+<nav>
+    <a href="/" class="logo">Forum<span>FPT</span></a>
+    <div class="nav-right">
+        <th:block th:if="${session.user == null}">
+            <a href="/auth/login" class="btn btn-ghost">Đăng nhập</a>
+            <a href="/auth/register" class="btn btn-primary">Đăng ký</a>
+        </th:block>
+        <th:block th:if="${session.user != null}">
+            <span style="font-size:13px;font-weight:500;color:var(--text-muted)" th:text="${session.user.username}">username</span>
+            <a href="/auth/logout" class="btn btn-ghost">Đăng xuất</a>
+        </th:block>
+    </div>
+</nav>
+
+<div class="layout">
+    <div th:if="${response != null}">
+
+        <!-- SUCCESS -->
+        <div th:if="${response.success}" class="response-banner success" id="responseBanner">
+            <span class="banner-icon">✅</span>
+            <div class="banner-body">
+                <strong>Bỏ lưu bài thành công!</strong>
+                <span th:text="${response.message}"></span>
+            </div>
+
+        </div>
+
+        <!-- ERROR -->
+        <div th:if="${!response.success}" class="response-banner error" id="responseBanner">
+            <span class="banner-icon">❌</span>
+            <div class="banner-body">
+                <strong>Bỏ lưu bài thất bại!</strong>
+                <span th:text="${response.message}">Đã xảy ra lỗi, vui lòng thử lại.</span>
+            </div>
+
+        </div>
+
+    </div>
+    <div class="page-header">
+        <h1>🔖 Bài viết đã lưu</h1>
+        <p th:if="${posts != null}" th:text="${#lists.size(posts)} + ' bài viết'">0 bài viết</p>
+    </div>
+
+    <!-- Post list -->
+    <div th:if="${posts != null}" th:each="post : ${posts}" class="post-card">
+        <a class="post-card-link" th:href="@{/user/post/{id}(id=${post.id})}">
+            <div class="post-meta">
+                <span class="post-author" th:text="${post.username}">username</span>
+                <span class="post-time" th:text="${post.getDuration()}">vừa xong</span>
+                <span class="topic-badge" th:text="${post.topicName}">Chủ đề</span>
+            </div>
+            <div class="post-title" th:text="${post.title}">Tiêu đề bài viết</div>
+            <div class="post-excerpt" th:text="${#strings.abbreviate(post.content, 120)}">Nội dung...</div>
+        </a>
+        <a class="unsave-btn" th:href="@{/user/post/unsave(postId=${post.id})}">✕ Bỏ lưu</a>
+    </div>
+
+    <!-- Empty state -->
+    <div class="empty" th:if="${posts == null}">
+        <div class="icon">🔖</div>
+        <p>Bạn chưa lưu bài viết nào.</p>
+        <a href="/" class="btn btn-primary">Khám phá bài viết</a>
+    </div>
+</div>
+
+</body>
+</html>

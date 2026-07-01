@@ -41,7 +41,7 @@ public class AuthController {
             ModelAndView mv = new ModelAndView();
             User user = authService.authenticate(userRequest);
             session.setAttribute("user", user);
-            mv.setViewName("redirect:/home");
+            mv.setViewName("redirect:/");
             return mv;
         }
 

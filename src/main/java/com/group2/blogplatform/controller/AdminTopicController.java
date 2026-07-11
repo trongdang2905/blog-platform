@@ -18,10 +18,18 @@ public class AdminTopicController {
 
     private final TopicService topicService;
 
-    // 1. Hiển thị danh sách tất cả các Topic trong trang Admin
+    // 1. Hiển thị danh sách tất cả các Topic
     @GetMapping
-    public String listTopics(Model model) {
-        List<Topic> topics = topicService.findAll();
+    public String listTopics(@RequestParam(value = "search", required = false) String search, Model model) {
+        List<Topic> topics;
+
+        if (search != null && !search.trim().isEmpty()) {
+            // Gọi hàm tìm kiếm từ Service
+            topics = topicService.searchTopics(search.trim());
+        } else {
+            topics = topicService.findAll();
+        }
+
         model.addAttribute("topics", topics);
         return "admin/topic/list";
     }
@@ -33,7 +41,7 @@ public class AdminTopicController {
         return "admin/topic/create";
     }
 
-    // 3. Xử lý lưu dữ liệu thêm mới (có check lỗi Validation bằng @Valid)
+    // 3. Xử lý lưu dữ liệu thêm mới
     @PostMapping("/create")
     public String createTopic(@Valid @ModelAttribute("topic") Topic topic, BindingResult result) {
         if (result.hasErrors()) {
@@ -55,7 +63,7 @@ public class AdminTopicController {
         }
     }
 
-    // 5. Xử lý cập nhật dữ liệu sau khi sửa
+    // 5. Xử lý cập nhật dữ liệu
     @PostMapping("/edit/{id}")
     public String updateTopic(@PathVariable("id") Integer id, @Valid @ModelAttribute("topic") Topic topic, BindingResult result) {
         if (result.hasErrors()) {

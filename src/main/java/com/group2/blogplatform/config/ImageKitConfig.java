@@ -10,7 +10,7 @@ public class ImageKitConfig {
     @Bean
     public ImageKitClient imageKitClient() {
         ImageKitClient client = ImageKitOkHttpClient.builder()
-                .privateKey(System.getenv("app_imagekit_private"))
+                .privateKey("abc")
                 .build();
         return client;
     }

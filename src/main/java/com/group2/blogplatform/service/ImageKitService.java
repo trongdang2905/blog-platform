@@ -27,8 +27,8 @@ public class ImageKitService {
             return "";
         }
 
-        if (!image.isEmpty() && !image.getContentType().equals("image/*")) {
-            throw new WrongTypeImageException("Wrong image type");
+        if (!image.isEmpty() && !image.getContentType().startsWith("image/")) {
+            throw new WrongTypeImageException("Wrong image type!");
         }
 
         if (image.getSize() > 25 * 1024 * 1024) {

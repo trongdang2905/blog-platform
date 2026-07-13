@@ -14,10 +14,10 @@ import org.springframework.web.multipart.MultipartFile;
 @AllArgsConstructor
 public class CreatePostRequest {
 
-    @NotBlank(message = "Title is not blank")
+    @NotBlank(message = "Title is required")
     private String title;
 
-    @NotBlank(message = "Content is not blank")
+    @NotBlank(message = "Content is required")
     private String content;
 
     private MultipartFile image;

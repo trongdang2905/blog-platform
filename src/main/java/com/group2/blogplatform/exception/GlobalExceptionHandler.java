@@ -1,5 +1,6 @@
 package com.group2.blogplatform.exception;
 
+import com.group2.blogplatform.dto.request.CreatePostRequest;
 import com.group2.blogplatform.dto.response.CreatePostResponse;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -14,7 +15,10 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(IOException.class)
     public String handleImageException(IOException e, Model model){
         CreatePostResponse response = new CreatePostResponse(false, e.getMessage());
+        System.out.println(e.getClass().getName());
+        e.printStackTrace();
         model.addAttribute("response", response);
+        model.addAttribute("dto", new CreatePostRequest());
         return "member/create-post";
     }
 
@@ -22,6 +26,7 @@ public class GlobalExceptionHandler {
     public String handleWrongTypeImageException(WrongTypeImageException e, Model model){
         CreatePostResponse response = new CreatePostResponse(false, e.getMessage());
         model.addAttribute("response", response);
+        model.addAttribute("dto", new CreatePostRequest());
         return "member/create-post";
     }
 
@@ -29,6 +34,7 @@ public class GlobalExceptionHandler {
     public String handleMaxImageException(ExcessImageException e, Model model){
         CreatePostResponse response = new CreatePostResponse(false, e.getMessage());
         model.addAttribute("response", response);
+        model.addAttribute("dto", new CreatePostRequest());
         return "member/create-post";
     }
 

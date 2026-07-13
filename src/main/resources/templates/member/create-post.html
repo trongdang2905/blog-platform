@@ -143,6 +143,28 @@
             animation: slideDown 0.3s ease;
         }
 
+        .text-danger {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+
+            margin-top: 6px;
+            padding: 6px 10px;
+
+            color: #b91c1c;
+            background-color: #fef2f2;
+            border: 1px solid #fecaca;
+            border-radius: 6px;
+
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .text-danger::before {
+            content: "⚠";
+            font-size: 14px;
+        }
+
         @keyframes slideDown {
             from {
                 opacity: 0;
@@ -317,7 +339,7 @@
             .footer-actions {
                 justify-content: flex-end;
             }
-        }
+}
     </style>
 </head>
 <body>
@@ -377,18 +399,27 @@
 
     </div>
 
-    <form id="createPostForm" action="create" method="POST" enctype="multipart/form-data">
+    <form id="createPostForm"
+          action="create"
+          method="POST"
+          enctype="multipart/form-data"
+          th:object="${dto}">
 
         <div class="form-card">
             <div class="form-body">
-<!--                <input type="hidden" name="userId">-->
+                <!--                <input type="hidden" name="userId">-->
 
                 <!-- TITLE -->
                 <div class="field">
                     <label for="title">Tiêu đề <span class="required">*</span></label>
                     <input type="text" id="title" name="title"
                            placeholder="Tiêu đề bài viết của bạn..."
-                           autocomplete="off">
+                           autocomplete="off"
+                           th:field="*{title}">
+                    <div class="text-danger"
+                         th:if="${#fields.hasErrors('title')}"
+                         th:errors="*{title}">
+                    </div>
                 </div>
 
                 <!-- CONTENT -->
@@ -396,7 +427,11 @@
                     <label for="content">Nội dung <span class="required">*</span></label>
                     <textarea id="content" name="content"
                               placeholder="Viết nội dung bài của bạn ở đây..."
-                              rows="10"></textarea>
+                              rows="10" th:field="*{content}"></textarea>
+                    <div class="text-danger"
+                         th:if="${#fields.hasErrors('content')}"
+                         th:errors="*{content}">
+                    </div>
                 </div>
 
                 <!-- IMAGE FILE -->
@@ -411,7 +446,7 @@
                 <div class="two-col">
                     <div class="field">
                         <label for="topicId">Chủ đề <span class="required">*</span></label>
-                        <select id="topicId" name="topicId">
+                        <select id="topicId" name="topicId" th:field="*{topicId}">
                             <option value="">— Chọn chủ đề —</option>
                             <option th:each="topic : ${session.topics}"
                                     th:value="${topic.id}"
@@ -419,6 +454,10 @@
                                 Chủ đề
                             </option>
                         </select>
+                    </div>
+                    <div class="text-danger"
+                         th:if="${#fields.hasErrors('topicId')}"
+                         th:errors="*{topicId}">
                     </div>
                 </div>
 

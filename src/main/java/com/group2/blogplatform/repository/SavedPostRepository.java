@@ -21,6 +21,7 @@ public interface SavedPostRepository extends JpaRepository<SavedPost, Long> {
             select s 
             from SavedPost s 
             where s.user.id = :id
+            order by s.savedAt desc 
             """)
     List<SavedPost> findAllByUserId(@Param("id") Long userId);
 

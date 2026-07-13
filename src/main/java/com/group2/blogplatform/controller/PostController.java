@@ -34,11 +34,12 @@ public class PostController {
 
     @GetMapping("/create")
     public String getViewPost(Model model) {
+        model.addAttribute("dto", new CreatePostRequest());
         return "member/create-post";
     }
 
     @PostMapping("/create")
-    public String createPost(@Valid @ModelAttribute CreatePostRequest dto,
+    public String createPost(@Valid @ModelAttribute("dto") CreatePostRequest dto,
                              BindingResult bindingResult,
                              Model model,
                              HttpSession session) throws IOException, ExcessImageException {
@@ -49,8 +50,6 @@ public class PostController {
         }
 
         if (bindingResult.hasErrors()) {
-            CreatePostResponse response = new CreatePostResponse(false, bindingResult.getFieldError().getDefaultMessage());
-            model.addAttribute("response", response);
             return "member/create-post";
         }
         CreatePostResponse response = postService.createPost(user, dto);

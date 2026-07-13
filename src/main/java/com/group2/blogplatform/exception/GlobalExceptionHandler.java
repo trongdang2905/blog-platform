@@ -18,6 +18,13 @@ public class GlobalExceptionHandler {
         return "member/create-post";
     }
 
+    @ExceptionHandler(WrongTypeImageException.class)
+    public String handleWrongTypeImageException(WrongTypeImageException e, Model model){
+        CreatePostResponse response = new CreatePostResponse(false, e.getMessage());
+        model.addAttribute("response", response);
+        return "member/create-post";
+    }
+
     @ExceptionHandler(ExcessImageException.class)
     public String handleMaxImageException(ExcessImageException e, Model model){
         CreatePostResponse response = new CreatePostResponse(false, e.getMessage());

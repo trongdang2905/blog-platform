@@ -109,22 +109,10 @@ public class PostController {
     public String getDetailPost(@PathVariable("id") Long postId, Model model, HttpSession session) {
         PostDTO post = postService.getPost(postId);
         session.setAttribute("post", post);
-        model.addAttribute("post", post);
-
-        // UC04/UC05 - bo sung du lieu de hien thi comment, like, report tren trang chi tiet
-        model.addAttribute("postId", postId);
         session.setAttribute("postId", postId);
-
-        model.addAttribute("comments", commentService.getVisibleCommentsByPost(postId));
         session.setAttribute("comments", commentService.getVisibleCommentsByPost(postId));
-
-        model.addAttribute("commentCount", commentService.countVisibleComments(postId));
         session.setAttribute("commentCount", commentService.countVisibleComments(postId));
-
-        model.addAttribute("likeCount", likeService.countLikes(postId));
         session.setAttribute("likeCount", likeService.countLikes(postId));
-
-        model.addAttribute("likedByCurrentUser", likeService.isLikedByCurrentUser(postId));
         session.setAttribute("likedByCurrentUser", likeService.isLikedByCurrentUser(postId));
         return "member/post-detail";
     }

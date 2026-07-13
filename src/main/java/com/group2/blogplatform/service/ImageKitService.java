@@ -2,6 +2,7 @@ package com.group2.blogplatform.service;
 
 
 import com.group2.blogplatform.exception.ExcessImageException;
+import com.group2.blogplatform.exception.WrongTypeImageException;
 import io.imagekit.client.ImageKitClient;
 
 import io.imagekit.models.files.FileUploadParams;
@@ -20,7 +21,15 @@ public class ImageKitService {
 
     private final ImageKitClient imageKitClient;
 
-    public String uploadImage(MultipartFile image) throws IOException, ExcessImageException {
+    public String uploadImage(MultipartFile image) throws IOException {
+
+        if (image.isEmpty()) {
+            return "";
+        }
+
+        if (!image.isEmpty() && !image.getContentType().equals("image/*")) {
+            throw new WrongTypeImageException("Wrong image type");
+        }
 
         if (image.getSize() > 25 * 1024 * 1024) {
             throw new ExcessImageException("Image size is not exceed 25 MB");

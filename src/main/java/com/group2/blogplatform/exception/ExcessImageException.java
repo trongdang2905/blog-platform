@@ -1,6 +1,6 @@
 package com.group2.blogplatform.exception;
 
-public class ExcessImageException extends Exception {
+public class ExcessImageException extends RuntimeException {
 
     public ExcessImageException() {
     }

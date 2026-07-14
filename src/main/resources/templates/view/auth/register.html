@@ -41,16 +41,17 @@
 
 
 
-                            <form th:action="@{/auth/register}" method="post">
+                            <form th:action="@{/auth/register}" th:object="${userRegisterRequest}" method="post">
 
                                 <!-- Username -->
                                 <div class="mb-3">
-                                    <label class="form-label fw-bold">Username</label>
+                                    <label class="form-label fw-bold">Full Name</label>
 
                                     <input type="text"
                                            class="form-control"
-                                           name="username"
+                                           th:field="*{username}"
                                            placeholder="Enter fullname">
+                                    <small class="text-danger" th:errors="*{username}"></small>
 
                                 </div>
 
@@ -60,8 +61,9 @@
 
                                     <input type="email"
                                            class="form-control"
-                                           name="email"
+                                           th:field="*{email}"
                                            placeholder="name@example.com">
+                                    <small class="text-danger" th:errors="*{email}"></small>
 
                                 </div>
 
@@ -71,8 +73,9 @@
 
                                     <input type="password"
                                            class="form-control"
-                                           name="password"
+                                           th:field="*{password}"
                                            placeholder="Enter password">
+                                    <small class="text-danger" th:errors="*{password}"></small>
 
                                 </div>
                                 <p class="text-danger text-center"

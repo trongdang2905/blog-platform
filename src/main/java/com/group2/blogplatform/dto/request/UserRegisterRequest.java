@@ -12,14 +12,15 @@ import lombok.*;
 @Builder
 public class UserRegisterRequest {
 
-    @NotBlank
+    @NotBlank(message ="Không được để trống")
+    @Size(max = 30, message ="Độ dài tối đa 30 ký tự")
     private String username;
 
-    @NotBlank
+    @NotBlank(message ="Không được để trống")
     @Email
     private String email;
 
-    @NotBlank
-    @Size(min = 6, max = 30)
+    @NotBlank(message ="Không được để trống")
+    @Size(min = 6, max = 30, message ="Độ dài ít nhất 6 ký tự, nhiều nhất 30 ký tự")
     private String password;
 }

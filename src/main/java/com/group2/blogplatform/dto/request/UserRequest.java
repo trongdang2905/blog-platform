@@ -10,7 +10,7 @@ import lombok.*;
 @Setter
 @Builder
 public class UserRequest {
-    //size
+
     @NotBlank
     @Email
     private String email;

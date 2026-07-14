@@ -39,7 +39,7 @@ public class PostController {
     }
 
     @PostMapping("/create")
-    public String createPost(@Valid @ModelAttribute CreatePostRequest dto,
+    public String createPost(@Valid @ModelAttribute("dto") CreatePostRequest dto,
                              BindingResult bindingResult,
                              Model model,
                              HttpSession session) throws IOException, ExcessImageException {

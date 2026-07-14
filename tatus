@@ -1,0 +1,32 @@
+*   [33mdfbcf91[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m Update complete moderation function
+[31m|[m[32m\[m  
+[31m|[m * [33me970cf6[m update validation
+[31m|[m * [33mbc97f41[m update create post
+* [32m|[m [33m45a6862[m Update complete moderation function
+[32m|[m[32m/[m  
+* [33ma89aaa0[m fix upload image
+[32m|[m * [33mfd2acbc[m[33m ([m[1;31morigin/DucK19.2[m[33m)[m xu ly va hoan thien them UC10 va UC11 cua admin
+[32m|[m[32m/[m  
+* [33m9c3aeca[m fix upload image and save post function
+* [33mb0e23bb[m fix login
+* [33ma13dfc3[m add login
+* [33m7e6c12b[m add valid and handle exception
+* [33m5d21516[m fix report comment and post
+* [33m98b3294[m fix comment and like
+* [33m2a1b525[m fix comment and like
+*   [33m953971f[m Merge pull request #3 from trongdang2905/NamNP
+[34m|[m[35m\[m  
+[34m|[m * [33m59c9239[m[33m ([m[1;31morigin/NamNP[m[33m)[m hoan thanh tinh nang update id moderator tu dong va bom data test
+[34m|[m[34m/[m  
+*   [33m2cf1931[m Merge pull request #2 from trongdang2905/DucK19
+[36m|[m[1;31m\[m  
+[36m|[m * [33m7dd99cd[m[33m ([m[1;31morigin/DucK19[m[33m)[m xu ly UC10 Manage Topics cua admin
+* [1;31m|[m   [33mda4fa44[m Merge pull request #1 from trongdang2905/DucK20
+[1;31m|[m[1;33m\[m [1;31m\[m  
+[1;31m|[m [1;33m|[m[1;31m/[m  
+[1;31m|[m[1;31m/[m[1;33m|[m   
+[1;31m|[m * [33m76ac1e9[m[33m ([m[1;31morigin/DucK20[m[33m)[m Add backend for UC04 (comment/like) and UC05 (report content)
+[1;31m|[m[1;31m/[m  
+* [33mef4d4f2[m add function with post
+* [33m77b20d0[m add structure program
+* [33m00dec95[m init project

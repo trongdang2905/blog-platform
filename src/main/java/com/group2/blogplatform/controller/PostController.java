@@ -34,6 +34,7 @@ public class PostController {
 
     @GetMapping("/create")
     public String getViewPost(Model model) {
+        model.addAttribute("dto", new CreatePostRequest());
         return "member/create-post";
     }
 
@@ -49,8 +50,6 @@ public class PostController {
         }
 
         if (bindingResult.hasErrors()) {
-            CreatePostResponse response = new CreatePostResponse(false, bindingResult.getFieldError().getDefaultMessage());
-            model.addAttribute("response", response);
             return "member/create-post";
         }
         CreatePostResponse response = postService.createPost(user, dto);

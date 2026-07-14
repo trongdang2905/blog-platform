@@ -9,11 +9,10 @@ import io.imagekit.models.files.FileUploadParams;
 import io.imagekit.models.files.FileUploadResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.multipart.MultipartFile;
-
 import java.io.IOException;
 import java.time.LocalDate;
+
 
 @Service
 @RequiredArgsConstructor
@@ -22,10 +21,6 @@ public class ImageKitService {
     private final ImageKitClient imageKitClient;
 
     public String uploadImage(MultipartFile image) throws IOException {
-
-        if (image.isEmpty()) {
-            return "";
-        }
 
         if (!image.isEmpty() && !image.getContentType().startsWith("image/")) {
             throw new WrongTypeImageException("Wrong image type!");
@@ -39,10 +34,11 @@ public class ImageKitService {
         FileUploadParams params = FileUploadParams.builder()
                 .file(imageBytes)
                 .fileName(LocalDate.now().toString())
+                .useUniqueFileName(true)
                 .build();
 
         FileUploadResponse response = imageKitClient.files().upload(params);
-        return response.url().get().toString();
+        return response.url().get();
     }
 
 

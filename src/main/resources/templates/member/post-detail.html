@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title th:text="${session.post.title + ' — ForumFPT'}">Bài viết — ForumFPT</title>
+    <title th:text="${post.title + ' — ForumFPT'}">Bài viết — ForumFPT</title>
     <style>
         * {
             margin: 0;
@@ -872,39 +872,42 @@
             <div class="post-meta">
                 <div class="avatar" style="background:#2563eb"
 
-                     th:text="${#strings.toUpperCase(#strings.substring(session.post.username,0,1))}">N
+                     th:text="${#strings.toUpperCase(#strings.substring(post.username,0,1))}">N
                 </div>
                 <div class="meta-info">
-                    <span class="post-author" th:text="${session.post.username}">nguyendev</span>
-                    <span class="post-time" th:text="${session.post.getDuration()}">2 giờ trước</span>
+                    <span class="post-author" th:text="${post.username}">nguyendev</span>
+                    <span class="post-time" th:text="${post.getDuration()}">2 giờ trước</span>
                 </div>
-                <span class="topic-badge" th:text="${session.post.topicName}">Công nghệ</span>
-                <span class="topic-badge" th:if="${session.post.pinned}"
+                <span class="topic-badge" th:text="${post.topicName}">Công nghệ</span>
+                <span class="topic-badge" th:if="${post.pinned}"
                       style="background:#fff5f0;color:#e85c2c;margin-left:4px">📌 Ghim</span>
             </div>
 
             <!-- Title -->
-            <div class="post-title" th:text="${session.post.title}">Tiêu đề bài viết</div>
+            <div class="post-title" th:text="${post.title}">Tiêu đề bài viết</div>
 
             <!-- Images (nếu có) -->
-            <div th:if="${session.post.imageUrl != null and !session.post.imageUrl.isEmpty()}"
-                 th:classappend="${#lists.size(session.post.imageUrl) == 1} ? 'post-images single' : 'post-images'">
-                <img th:each="url : ${session.post.imageUrl}"
+            <div th:if="${post.imageUrl != null and !post.imageUrl.isEmpty()}"
+                 th:classappend="${#lists.size(post.imageUrl) == 1} ? 'post-images single' : 'post-images'">
+                <img th:each="url : ${post.imageUrl}"
                      th:src="${url}" class="post-image"
-                     th:alt="${session.post.title}"
+                     th:alt="${post.title}"
                      onclick="openLightbox(this.src)"/>
             </div>
 
             <!-- Content -->
-            <div class="post-content" th:text="${session.post.content}">Nội dung bài viết...</div>
+            <div class="post-content" th:text="${post.content}">Nội dung bài viết...</div>
 
             <!-- Actions -->
             <div class="actions-bar">
+                <!-- Tim thay them 1 bug khi sua #6: truoc day dieu kien to mau trai tim dua vao
+                     likeCount (chi can bai co >=1 luot thich, moi nguoi xem deu thay trai tim
+                     do), dung ra phai dua vao likedByCurrentUser (chi user hien tai da thich). -->
                 <button class="action-btn"
-                        th:classappend="${session.likeCount} ? 'liked' : ''"
-                        th:attr="data-id=${session.post.id}"
+                        th:classappend="${likedByCurrentUser} ? 'liked' : ''"
+                        th:attr="data-id=${post.id}"
                         onclick="toggleLike(this)">
-                    ❤️ <span class="count" th:text="${session.likeCount}">0</span> Thích
+                    ❤️ <span class="count" th:text="${likeCount}">0</span> Thích
                 </button>
                 <button class="action-btn" onclick="focusComment()">
                     💬 <span>0</span> Bình luận
@@ -912,11 +915,11 @@
                 <div class="spacer"></div>
 
                 <a class="action-btn"
-                   th:href="@{/user/post/save(postId=${session.post.id})}">
+                   th:href="@{/user/post/save(postId=${post.id})}">
                     🔖 <span>Lưu</span>
                 </a>
                 <button class="action-btn report-btn"
-                        th:attr="data-id=${session.post.id}, data-type='POST'"
+                        th:attr="data-id=${post.id}, data-type='POST'"
                         onclick="openReport(this)">
                     🚩 Báo cáo
                 </button>
@@ -927,7 +930,7 @@
         <div class="comments-section">
             <div class="comments-title">
                 Bình luận
-                <span class="comments-count" th:text="${#lists.size(session.comments)}">0</span>
+                <span class="comments-count" th:text="${#lists.size(comments)}">0</span>
             </div>
 
             <!-- Comment input -->
@@ -950,17 +953,22 @@
             <div class="comment-list" id="commentList">
 
                 <!-- Thymeleaf loop -->
-                <div class="comment-item" th:each="comment : ${session.comments}">
+                <div class="comment-item" th:each="comment : ${comments}">
+                    <!-- Fix bug #7: th:style rong truoc day ghi de mat mau avatar (render ra
+                         style="background: " khong co gia tri) -> bo th:style rong, giu lai
+                         mau tim mac dinh o attribute style tinh phia tren. -->
                     <div class="avatar" style="background:#7c3aed"
-                         th:style="'background:' "
                          th:text="${#strings.toUpperCase(#strings.substring(comment.username,0,1))}">U
                     </div>
                     <div class="comment-body">
                         <div class="comment-header">
                             <span class="comment-author" th:text="${comment.username}">username</span>
                             <span class="comment-time" th:text="${comment.createdAt}">vừa xong</span>
-                            <span class="comment-status-badge"
-                                  th:if="${comment.username == 'HIDDEN'}">Đã ẩn</span>
+                            <!-- Fix bug #8: badge "Đã ẩn" cu so sanh sai field (username == 'HIDDEN'
+                                 thay vi trang thai comment) va vinh vien khong bao gio hien vi
+                                 getVisibleCommentsByPost() chi lay comment VISIBLE - danh sach nay
+                                 khong the chua comment da bi an. Bo badge chet nay; se lam lai dung
+                                 sau khi UC8 (Content Moderation - hideComment) duoc hien thuc. -->
                         </div>
                         <div class="comment-text" th:text="${comment.content}">Nội dung bình luận</div>
                         <div class="comment-actions">
@@ -973,7 +981,7 @@
                 </div>
 
                 <!-- Empty state -->
-                <div class="empty-comments" th:if="${#lists.isEmpty(session.comments)}">
+                <div class="empty-comments" th:if="${#lists.isEmpty(comments)}">
                     <div class="icon">💬</div>
                     Chưa có bình luận nào. Hãy là người đầu tiên!
                 </div>

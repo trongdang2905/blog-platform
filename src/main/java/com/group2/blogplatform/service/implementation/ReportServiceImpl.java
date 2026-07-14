@@ -46,8 +46,13 @@ public class ReportServiceImpl implements ReportService {
             return new CreateReportResponse(false, "User not found");
         }
 
+        String reasonText = request.getReason().trim();
+        if (request.getNote() != null && !request.getNote().isBlank()) {
+            reasonText = reasonText + " - " + request.getNote().trim();
+        }
+
         Report report = new Report();
-        report.setReason(request.getReason().trim());
+        report.setReason(reasonText);
         report.setReporter(reporter);
         report.setStatusReport(StatusReport.PENDING);
 

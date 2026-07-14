@@ -10,6 +10,9 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Builder
 public class CommentResponse implements Comparable<CommentResponse> {
+    private boolean success;
+    private String message;
+
     private Long id;
     private String content;
     private String createdAt;

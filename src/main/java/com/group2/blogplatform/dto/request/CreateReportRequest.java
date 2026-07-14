@@ -18,6 +18,5 @@ public class CreateReportRequest {
 
     @NotBlank(message = "Please provide a reason for the report")
     private String reason;
-
-    private String returnUrl;
+    private String note;
 }

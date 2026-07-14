@@ -60,14 +60,16 @@ public class CommentServiceImpl implements CommentService {
     public List<CommentResponse> getVisibleCommentsByPost(Long postId) {
         List<Comment> comments = commentRepository.findVisibleByPostId(postId, StatusComment.VISIBLE);
         return comments.stream()
-                .map(c -> new CommentResponse(
-                        c.getId(),
-                        c.getContent(),
-                        formatTime(c.getCreatedAt()),
-                        c.getUser().getId(),
-                        c.getUser().getUsername(),
-                        c.getUser().getId().equals(CURRENT_USER_ID)
-                )).toList();
+                .map(c -> CommentResponse.builder()
+                        .success(true)
+                        .id(c.getId())
+                        .content(c.getContent())
+                        .createdAt(formatTime(c.getCreatedAt()))
+                        .userId(c.getUser().getId())
+                        .username(c.getUser().getUsername())
+                        .ownedByCurrentUser(c.getUser().getId().equals(CURRENT_USER_ID))
+                        .build()
+                ).toList();
 
     }
 
@@ -78,15 +80,38 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     public CommentResponse createCommentToAppend(CreateCommentRequest request) {
+        if (request.getContent() == null || request.getContent().isBlank()) {
+            return CommentResponse.builder()
+                    .success(false)
+                    .message("Comment content must not be empty")
+                    .build();
+        }
+
         Post post = postRepository.findById(request.getPostId()).orElse(null);
+        if (post == null) {
+            return CommentResponse.builder()
+                    .success(false)
+                    .message("Post not found")
+                    .build();
+        }
+
         User user = userRepository.findByID(CURRENT_USER_ID);
+        if (user == null) {
+            return CommentResponse.builder()
+                    .success(false)
+                    .message("User not found")
+                    .build();
+        }
+
         Comment comment = new Comment();
         comment.setContent(request.getContent().trim());
         comment.setPost(post);
         comment.setUser(user);
         comment.setStatusComment(StatusComment.VISIBLE);
         commentRepository.save(comment);
-        CommentResponse commentResponse = new CommentResponse().builder()
+
+        return CommentResponse.builder()
+                .success(true)
                 .id(comment.getId())
                 .content(comment.getContent())
                 .createdAt(formatTime(comment.getCreatedAt()))
@@ -94,7 +119,6 @@ public class CommentServiceImpl implements CommentService {
                 .username(comment.getUser().getUsername())
                 .ownedByCurrentUser(false)
                 .build();
-        return commentResponse;
     }
 
     private String formatTime(LocalDateTime createdAt) {

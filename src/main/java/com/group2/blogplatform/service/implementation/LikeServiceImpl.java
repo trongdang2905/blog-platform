@@ -9,10 +9,9 @@ import com.group2.blogplatform.repository.PostRepository;
 import com.group2.blogplatform.repository.UserRepository;
 import com.group2.blogplatform.service.LikeService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -27,20 +26,14 @@ public class LikeServiceImpl implements LikeService {
 
     @Override
     @Transactional
-    public ToggleLikeResponse toggleLike(Long postId) {
+    public ToggleLikeResponse like(Long postId) {
         Post post = postRepository.findById(postId).orElse(null);
         if (post == null) {
             return new ToggleLikeResponse(false, false, 0, "Post not found");
         }
 
-        Optional<PostLike> existing = postLikeRepository.findByPost_IdAndUser_Id(postId, CURRENT_USER_ID);
-
-        boolean liked;
-        if (existing.isPresent()) {
-            // Da like roi -> bo like
-            postLikeRepository.delete(existing.get());
-            liked = false;
-        } else {
+        boolean alreadyLiked = postLikeRepository.existsByPost_IdAndUser_Id(postId, CURRENT_USER_ID);
+        if (!alreadyLiked) {
             User user = userRepository.findByID(CURRENT_USER_ID);
             if (user == null) {
                 return new ToggleLikeResponse(false, false, postLikeRepository.countByPost_Id(postId), "User not found");
@@ -48,12 +41,29 @@ public class LikeServiceImpl implements LikeService {
             PostLike like = new PostLike();
             like.setPost(post);
             like.setUser(user);
-            postLikeRepository.save(like);
-            liked = true;
+            try {
+                postLikeRepository.save(like);
+            } catch (DataIntegrityViolationException e) {
+
+            }
         }
 
         long likeCount = postLikeRepository.countByPost_Id(postId);
-        return new ToggleLikeResponse(true, liked, likeCount, liked ? "Liked" : "Unliked");
+        return new ToggleLikeResponse(true, true, likeCount, "Liked");
+    }
+
+    @Override
+    @Transactional
+    public ToggleLikeResponse unlike(Long postId) {
+        Post post = postRepository.findById(postId).orElse(null);
+        if (post == null) {
+            return new ToggleLikeResponse(false, false, 0, "Post not found");
+        }
+
+        postLikeRepository.deleteByPost_IdAndUser_Id(postId, CURRENT_USER_ID);
+
+        long likeCount = postLikeRepository.countByPost_Id(postId);
+        return new ToggleLikeResponse(true, false, likeCount, "Unliked");
     }
 
     @Override

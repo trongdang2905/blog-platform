@@ -34,12 +34,11 @@ public class PostController {
 
     @GetMapping("/create")
     public String getViewPost(Model model) {
-        model.addAttribute("dto", new CreatePostRequest());
         return "member/create-post";
     }
 
     @PostMapping("/create")
-    public String createPost(@Valid @ModelAttribute("dto") CreatePostRequest dto,
+    public String createPost(@Valid @ModelAttribute CreatePostRequest dto,
                              BindingResult bindingResult,
                              Model model,
                              HttpSession session) throws IOException, ExcessImageException {
@@ -50,6 +49,8 @@ public class PostController {
         }
 
         if (bindingResult.hasErrors()) {
+            CreatePostResponse response = new CreatePostResponse(false, bindingResult.getFieldError().getDefaultMessage());
+            model.addAttribute("response", response);
             return "member/create-post";
         }
         CreatePostResponse response = postService.createPost(user, dto);
@@ -59,15 +60,13 @@ public class PostController {
 
     @GetMapping("/save")
     public String savePost(@RequestParam(name = "postId") Long postId,
-                           Model model,
                            HttpSession session) {
         User user = (User) session.getAttribute("user");
         if (user == null) {
             return "redirect:/auth/login";
         }
-        SaveResponse response = postService.savePost(user.getId(), postId);
-        model.addAttribute("response", response);
-        return "member/post-detail";
+        postService.savePost(user.getId(), postId);
+        return "redirect:/user/post/" + postId;
     }
 
     @GetMapping("/unsave")
@@ -105,14 +104,13 @@ public class PostController {
     }
 
     @GetMapping("/{id}")
-    public String getDetailPost(@PathVariable("id") Long postId, Model model, HttpSession session) {
+    public String getDetailPost(@PathVariable("id") Long postId, Model model) {
         PostDTO post = postService.getPost(postId);
-        session.setAttribute("post", post);
-        session.setAttribute("postId", postId);
-        session.setAttribute("comments", commentService.getVisibleCommentsByPost(postId));
-        session.setAttribute("commentCount", commentService.countVisibleComments(postId));
-        session.setAttribute("likeCount", likeService.countLikes(postId));
-        session.setAttribute("likedByCurrentUser", likeService.isLikedByCurrentUser(postId));
+        model.addAttribute("post", post);
+        model.addAttribute("comments", commentService.getVisibleCommentsByPost(postId));
+        model.addAttribute("commentCount", commentService.countVisibleComments(postId));
+        model.addAttribute("likeCount", likeService.countLikes(postId));
+        model.addAttribute("likedByCurrentUser", likeService.isLikedByCurrentUser(postId));
         return "member/post-detail";
     }
 

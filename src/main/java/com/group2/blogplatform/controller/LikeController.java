@@ -14,12 +14,12 @@ public class LikeController {
 
     // UC04 - Member Like: bam tim de like/unlike bai viet, goi qua AJAX (fetch/JS)
     @PostMapping("/like")
-    public ToggleLikeResponse toggleLike(@RequestParam("postId") Long postId) {
-        return likeService.toggleLike(postId);
+    public ToggleLikeResponse like(@RequestParam("postId") Long postId) {
+        return likeService.like(postId);
     }
 
     @PostMapping("/unlike")
-    public ToggleLikeResponse toggleUnLike(@RequestParam("postId") Long postId) {
-        return likeService.toggleLike(postId);
+    public ToggleLikeResponse unlike(@RequestParam("postId") Long postId) {
+        return likeService.unlike(postId);
     }
 }

@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+
+    <meta charset="UTF-8">
+
+    <title>Post List</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+          rel="stylesheet">
+
+    <style>
+
+        body{
+            background:#f5f7fb;
+        }
+
+        .sidebar{
+            background:#212529;
+            min-height:100vh;
+        }
+
+        .sidebar .nav-link{
+
+            color:#ced4da;
+
+            padding:14px 20px;
+
+            margin:5px 10px;
+
+            border-radius:8px;
+
+        }
+
+        .sidebar .nav-link:hover{
+
+            background:#343a40;
+
+            color:white;
+
+        }
+
+        .sidebar .active{
+
+            background:#0d6efd;
+
+            color:white;
+
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+<div class="container-fluid">
+
+    <div class="row">
+
+        <div class="col-md-2 sidebar p-0">
+
+            <div class="text-center text-white py-4 border-bottom">
+
+                <h3>Moderator</h3>
+
+            </div>
+
+            <a th:href="@{/moderation/dashboard}"
+               class="nav-link">
+
+                🏠 Dashboard
+
+            </a>
+
+            <a th:href="@{/moderation/reports}"
+               class="nav-link">
+
+                🚨 Reported Posts
+
+            </a>
+
+            <a th:href="@{/moderation/posts}"
+               class="nav-link active">
+
+                📌 Post List
+
+            </a>
+
+        </div>
+
+        <div class="col-md-10">
+
+            <div class="p-4">
+
+                <h2>Post List</h2>
+
+                <div class="card shadow-sm mt-3">
+
+                    <div class="table-responsive">
+
+                        <table class="table table-hover align-middle">
+
+                            <thead class="table-dark">
+
+                            <tr>
+
+                                <th>ID</th>
+
+                                <th>Title</th>
+
+                                <th>Author</th>
+
+                                <th>Topic</th>
+
+                                <th>Status</th>
+
+                                <th>Pinned</th>
+
+                                <th width="180">
+
+                                    Action
+
+                                </th>
+
+                            </tr>
+
+                            </thead>
+
+                            <tbody>
+
+                            <tr th:each="post : ${posts}">
+
+                                <td th:text="${post.id}"></td>
+
+                                <td th:text="${post.title}"></td>
+
+                                <td th:text="${post.user.username}"></td>
+
+                                <td th:text="${post.topic.name}"></td>
+
+                                <td>
+
+<span class="badge bg-success"
+      th:if="${post.statusPost.name()=='PUBLISHED'}">
+
+Published
+
+</span>
+
+                                    <span class="badge bg-secondary"
+                                          th:if="${post.statusPost.name()=='HIDDEN'}">
+
+Hidden
+
+</span>
+
+                                </td>
+
+                                <td>
+
+<span class="badge bg-primary"
+      th:if="${post.pinned}">
+
+Pinned
+
+</span>
+
+                                    <span class="badge bg-light text-dark"
+                                          th:unless="${post.pinned}">
+
+No
+
+</span>
+
+                                </td>
+
+                                <td>
+
+                                    <form method="post"
+                                          th:action="@{/moderation/posts/{id}/pin(id=${post.id})}"
+                                          class="d-inline">
+
+                                        <button class="btn btn-sm btn-outline-primary"
+                                                th:text="${post.pinned}?'Unpin':'Pin'">
+
+                                        </button>
+
+                                    </form>
+
+                                    <form method="post"
+                                          th:action="@{/moderation/posts/{id}/hide(id=${post.id})}"
+                                          class="d-inline">
+
+                                        <button class="btn btn-sm btn-outline-danger"
+                                                th:disabled="${post.statusPost.name()=='HIDDEN'}">
+
+                                            Hide
+
+                                        </button>
+
+                                    </form>
+
+                                </td>
+
+                            </tr>
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+</body>
+</html>

@@ -1,17 +1,15 @@
 package com.group2.blogplatform.service.implementation;
 
-
-import com.group2.blogplatform.entity.Report;
 import com.group2.blogplatform.entity.Post;
-import com.group2.blogplatform.entity.User;
-import com.group2.blogplatform.entity.StatusReport;
+import com.group2.blogplatform.entity.Report;
 import com.group2.blogplatform.entity.StatusPost;
-import com.group2.blogplatform.repository.ReportRepository;
+import com.group2.blogplatform.entity.StatusReport;
+import com.group2.blogplatform.entity.User;
 import com.group2.blogplatform.repository.PostRepository;
-import com.group2.blogplatform.repository.UserRepository; // Giả định ông có UserRepository để tìm User
+import com.group2.blogplatform.repository.ReportRepository;
+import com.group2.blogplatform.repository.UserRepository;
 import com.group2.blogplatform.service.ModerationService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,29 +23,48 @@ public class ModerationServiceImpl implements ModerationService {
     private final PostRepository postRepository;
     private final UserRepository userRepository;
 
+    /**
+     * Get all pending reports
+     */
     @Override
     public List<Report> getPendingReports() {
-        // Entity của ông đặt tên trường là statusReport
         return reportRepository.findByStatusReport(StatusReport.PENDING);
     }
 
+    /**
+     * Get report detail
+     */
+    @Override
+    public Report getReportById(Long reportId) {
+
+        return reportRepository.findById(reportId)
+                .orElseThrow(() ->
+                        new RuntimeException("Report not found with ID: " + reportId));
+    }
+
+    /**
+     * Review report
+     */
     @Override
     @Transactional
-    public Report reviewReport(Long reportId, Long moderatorId, StatusReport newStatus) {
+    public Report reviewReport(Long reportId,
+                               Long moderatorId,
+                               StatusReport newStatus) {
+
         Report report = reportRepository.findById(reportId)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy báo cáo với ID: " + reportId));
+                .orElseThrow(() ->
+                        new RuntimeException("Report not found with ID: " + reportId));
 
-        // Tìm đối tượng User làm moderator
         User moderator = userRepository.findById(moderatorId)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy người kiểm duyệt với ID: " + moderatorId));
+                .orElseThrow(() ->
+                        new RuntimeException("Moderator not found with ID: " + moderatorId));
 
-        // Sửa theo đúng tên biến trong Entity của ông
         report.setStatusReport(newStatus);
         report.setModerator(moderator);
 
         Report updatedReport = reportRepository.save(report);
 
-        // LOGIC TỰ ĐỘNG: Nếu report được xử lý là đúng (RESOLVED) và báo cáo đó gắn liền với một Post (post != null)
+        // Khi resolve thì tự động hide bài viết
         if (newStatus == StatusReport.RESOLVED && report.getPost() != null) {
             hidePost(report.getPost().getId());
         }
@@ -55,26 +72,58 @@ public class ModerationServiceImpl implements ModerationService {
         return updatedReport;
     }
 
+    /**
+     * Hide post
+     */
     @Override
     @Transactional
     public void hidePost(Long postId) {
-        Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy bài viết với ID: " + postId));
 
-        // Entity của ông đặt tên trường là statusPost
-        post.setStatusPost(StatusPost.HIDDEN); // Ông hãy chắc chắn trong enum StatusPost có giá trị HIDDEN nhé
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() ->
+                        new RuntimeException("Post not found with ID: " + postId));
+
+        post.setStatusPost(StatusPost.HIDDEN);
+
         postRepository.save(post);
     }
 
+    /**
+     * Pin / Unpin post
+     */
     @Override
     @Transactional
     public Post togglePinPost(Long postId) {
-        Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy bài viết với ID: " + postId));
 
-        // Với kiểu boolean nguyên thủy, Lombok sinh hàm getter là isPinned()
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() ->
+                        new RuntimeException("Post not found with ID: " + postId));
+
         post.setPinned(!post.isPinned());
 
         return postRepository.save(post);
     }
+
+    /**
+     * Dashboard statistics
+     */
+    @Override
+    public long countPendingReports() {
+        return reportRepository.findByStatusReport(StatusReport.PENDING).size();
+    }
+
+    @Override
+    public long countResolvedReports() {
+        return reportRepository.findByStatusReport(StatusReport.RESOLVED).size();
+    }
+
+    @Override
+    public long countPinnedPosts() {
+
+        return postRepository.findAll()
+                .stream()
+                .filter(Post::isPinned)
+                .count();
+    }
+
 }

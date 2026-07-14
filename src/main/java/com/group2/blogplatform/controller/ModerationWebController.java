@@ -2,61 +2,123 @@ package com.group2.blogplatform.controller;
 
 import com.group2.blogplatform.entity.Report;
 import com.group2.blogplatform.entity.Role;
-import com.group2.blogplatform.entity.User;
 import com.group2.blogplatform.entity.StatusReport;
-import com.group2.blogplatform.repository.UserRepository; // Nhớ import UserRepository của ông vào đây
+import com.group2.blogplatform.entity.User;
+import com.group2.blogplatform.repository.PostRepository;
+import com.group2.blogplatform.repository.UserRepository;
 import com.group2.blogplatform.service.ModerationService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 @Controller
 @RequestMapping("/moderation")
+@RequiredArgsConstructor
 public class ModerationWebController {
 
     private final ModerationService moderationService;
-    private final UserRepository userRepository; // 1. Khai báo thêm UserRepository ở đây
+    private final UserRepository userRepository;
+    private final PostRepository postRepository;
 
-    // 2. Cập nhật Constructor để Spring tự động Inject cả 2 thằng vào
-    public ModerationWebController(ModerationService moderationService, UserRepository userRepository) {
-        this.moderationService = moderationService;
-        this.userRepository = userRepository;
+    /**
+     * Moderator Dashboard
+     */
+    @GetMapping("/dashboard")
+    public String dashboard(Model model) {
+
+        model.addAttribute("pendingReports",
+                moderationService.countPendingReports());
+
+        model.addAttribute("resolvedReports",
+                moderationService.countResolvedReports());
+
+        model.addAttribute("pinnedPosts",
+                moderationService.countPinnedPosts());
+
+        return "moderation/moderator-dashboard";
     }
 
-    // Trang hiển thị danh sách báo cáo vi phạm
+    /**
+     * Report List
+     */
     @GetMapping("/reports")
-    public String showPendingReports(Model model) {
-        List<Report> reports = moderationService.getPendingReports();
-        model.addAttribute("reports", reports);
-        return "moderation/reports";
+    public String reportedPosts(Model model) {
+
+        model.addAttribute("reports",
+                moderationService.getPendingReports());
+
+        return "moderation/reported-posts";
     }
 
-    // Xử lý khi bấm nút Duyệt trên giao diện -> ĐÃ TỰ ĐỘNG HOÁ ID
+    /**
+     * Report Detail
+     */
+    @GetMapping("/reports/{id}")
+    public String reportDetail(@PathVariable Long id,
+                               Model model) {
+
+        Report report = moderationService.getReportById(id);
+
+        model.addAttribute("report", report);
+
+        return "moderation/report-detail";
+    }
+
+    /**
+     * Post List
+     */
+    @GetMapping("/posts")
+    public String postList(Model model) {
+
+        model.addAttribute("posts",
+                postRepository.findAll());
+
+        return "moderation/post-list";
+    }
+
+    /**
+     * Resolve Report (Hide post + Resolve report)
+     */
     @PostMapping("/reports/{id}/resolve")
     public String resolveReport(@PathVariable Long id) {
 
-        // 3. TỰ ĐỘNG: Lấy ông User đầu tiên có quyền MODERATOR trong Database ra để xử lý
-        // (Thay phương thức tìm kiếm tương ứng với hàm ông viết trong UserRepository, ví dụ: findByRole)
-        User mockModerator = userRepository.findByRole(Role.MODERATOR)
+        User moderator = userRepository.findByRole(Role.MODERATOR)
                 .stream()
                 .findFirst()
-                .orElseThrow(() -> new RuntimeException("Lỗi rồi ông ơi: Database chưa có tài khoản nào mang quyền MODERATOR để test cả!"));
+                .orElseThrow(() -> new RuntimeException(
+                        "The database does not contain any MODERATOR accounts, so this feature cannot be tested at the moment."
+                ));
 
-        Long realModeratorId = mockModerator.getId(); // Lấy ID tự động (2L, 3L hay 4L nó tự bắt hết)
+        moderationService.reviewReport(
+                id,
+                moderator.getId(),
+                StatusReport.RESOLVED
+        );
 
-        // Truyền ID tự động tìm được vào Service
-        moderationService.reviewReport(id, realModeratorId, StatusReport.RESOLVED);
-
-        // Xử lý xong thì tự động tải lại trang danh sách
         return "redirect:/moderation/reports";
     }
 
-    // Xử lý khi bấm nút Ghim bài viết trên giao diện
+    /**
+     * Hide Post
+     */
+    @PostMapping("/posts/{id}/hide")
+    public String hidePost(@PathVariable Long id) {
+
+        moderationService.hidePost(id);
+
+        return "redirect:/moderation/posts";
+    }
+
+    /**
+     * Pin / Unpin Post
+     */
     @PostMapping("/posts/{id}/pin")
     public String pinPost(@PathVariable Long id) {
+
         moderationService.togglePinPost(id);
-        return "redirect:/moderation/reports";
+
+        return "redirect:/moderation/posts";
     }
+
 }

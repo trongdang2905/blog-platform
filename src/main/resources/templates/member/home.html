@@ -145,28 +145,7 @@
             background: var(--surface);
         }
 
-        .search-clear {
-            position: absolute;
-            right: 8px;
-            top: 50%;
-            transform: translateY(-50%);
-            background: none;
-            border: none;
-            font-size: 14px;
-            color: var(--text-muted);
-            cursor: pointer;
-            display: none;
-            line-height: 1;
-            padding: 2px;
-        }
 
-        .search-clear.show {
-            display: block;
-        }
-
-        .search-clear:hover {
-            color: var(--text);
-        }
 
         .search-btn {
             padding: 6px 12px;
@@ -185,62 +164,9 @@
             opacity: 0.88;
         }
 
-        /* SEARCH DROPDOWN */
-        .search-dropdown {
-            position: absolute;
-            top: calc(100% + 6px);
-            left: 0;
-            right: 0;
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
-            z-index: 99;
-            display: none;
-            overflow: hidden;
-        }
 
-        .search-dropdown.show {
-            display: block;
-        }
 
-        .dropdown-section {
-            padding: 8px 0;
-        }
 
-        .dropdown-label {
-            padding: 4px 14px 6px;
-            font-size: 11px;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            color: var(--text-muted);
-        }
-
-        .dropdown-item {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 9px 14px;
-            font-size: 13px;
-            cursor: pointer;
-            text-decoration: none;
-            color: var(--text);
-            transition: background 0.1s;
-        }
-
-        .dropdown-item:hover, .dropdown-item.focused {
-            background: var(--bg);
-        }
-
-        .dropdown-item .item-icon {
-            font-size: 15px;
-            flex-shrink: 0;
-        }
-
-        .dropdown-item .item-text {
-            flex: 1;
-        }
 
         .dropdown-item .item-text strong {
             display: block;
@@ -252,36 +178,7 @@
             color: var(--text-muted);
         }
 
-        .dropdown-item .item-badge {
-            font-size: 11px;
-            padding: 1px 6px;
-            border-radius: 4px;
-            background: var(--accent-light);
-            color: var(--accent);
-            font-weight: 500;
-        }
 
-        .dropdown-divider {
-            height: 1px;
-            background: var(--border);
-            margin: 4px 0;
-        }
-
-        .dropdown-footer {
-            padding: 9px 14px;
-            font-size: 12px;
-            color: var(--accent);
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            font-weight: 500;
-            transition: background 0.1s;
-        }
-
-        .dropdown-footer:hover {
-            background: var(--bg);
-        }
 
         /* SEARCH RESULTS BANNER */
         .search-banner {
@@ -296,7 +193,7 @@
             font-size: 13px;
         }
 
-        .search-banner.show {
+        .search-banner{
             display: flex;
         }
 
@@ -427,13 +324,7 @@
             gap: 14px;
         }
 
-        .stat {
-            display: flex;
-            align-items: center;
-            gap: 4px;
-            font-size: 12px;
-            color: var(--text-muted);
-        }
+
 
         .hot-badge {
             font-size: 11px;
@@ -465,7 +356,7 @@
             text-decoration: none;
         }
 
-        .icon-btn.save:hover, .icon-btn.save.saved {
+        .icon-btn:hover, .icon-btn{
             border-color: var(--saved);
             background: var(--saved-bg);
             color: var(--saved);
@@ -499,7 +390,7 @@
             transition: opacity 0.2s;
         }
 
-        .modal-overlay.show {
+        .modal-overlay{
             opacity: 1;
             pointer-events: all;
         }
@@ -582,7 +473,7 @@
             flex-shrink: 0;
         }
 
-        .report-option.selected {
+        .report-option {
             border-color: var(--report);
             background: #fef2f2;
         }
@@ -670,7 +561,7 @@
             pointer-events: none;
         }
 
-        .toast.show {
+        .toast {
             transform: translateY(0);
             opacity: 1;
         }
@@ -724,10 +615,7 @@
             transition: color 0.15s;
         }
 
-        .topic-count {
-            font-size: 12px;
-            color: var(--text-muted);
-        }
+
 
         .new-post-btn {
             width: 100%;
@@ -787,24 +675,20 @@
             background: var(--accent-light);
         }
 
-        .page-btn.active {
+        .page-btn{
             background: var(--accent);
             color: #fff;
             border-color: var(--accent);
             pointer-events: none;
         }
 
-        .page-btn.disabled {
+        .page-btn {
             opacity: 0.4;
             pointer-events: none;
             cursor: default;
         }
 
-        .page-dots {
-            font-size: 13px;
-            color: var(--text-muted);
-            padding: 0 4px;
-        }
+
     </style>
 </head>
 <body>
@@ -896,50 +780,18 @@
         <!-- PAGINATION -->
         <div class="pagination" th:if="${totalPages > 1}">
 
-            <!-- Prev -->
             <a class="page-btn"
                th:classappend="${currentPage == 1} ? ' disabled' : ''"
                th:href="@{/(currentPage=${currentPage - 1})}">← Trước</a>
 
-            <!-- Render tất cả trang nếu totalPages <= 7, không cần logic ... -->
-            <th:block th:if="${totalPages <= 7}">
-                <th:block th:each="i : ${#numbers.sequence(1, totalPages)}">
-                    <a class="page-btn"
-                       th:classappend="${i == currentPage} ? ' active' : ''"
-                       th:href="@{/(currentPage=${i})}"
-                       th:text="${i}">1</a>
-                </th:block>
+
+            <th:block th:each="i : ${#numbers.sequence(1, totalPages)}">
+                <a class="page-btn"
+                   th:classappend="${i == currentPage} ? ' active' : ''"
+                   th:href="@{/(currentPage=${i})}"
+                   th:text="${i}">1</a>
             </th:block>
 
-            <!-- Nếu totalPages > 7 mới dùng logic ... -->
-            <th:block th:if="${totalPages > 7}">
-                <!-- Trang đầu -->
-                <a class="page-btn"
-                   th:classappend="${currentPage == 1} ? ' active' : ''"
-                   th:href="@{/(currentPage=1)}">1</a>
-
-                <span class="page-dots" th:if="${currentPage > 3}">...</span>
-
-                <th:block th:each="i : ${#numbers.sequence(
-            (currentPage > 2 ? currentPage - 1 : 2),
-            (currentPage < totalPages - 1 ? currentPage + 1 : totalPages - 1)
-        )}">
-                    <a class="page-btn"
-                       th:classappend="${i == currentPage} ? ' active' : ''"
-                       th:href="@{/(currentPage=${i})}"
-                       th:text="${i}">2</a>
-                </th:block>
-
-                <span class="page-dots" th:if="${currentPage < totalPages - 2}">...</span>
-
-                <!-- Trang cuối -->
-                <a class="page-btn"
-                   th:classappend="${currentPage == totalPages} ? ' active' : ''"
-                   th:href="@{/(currentPage=${totalPages})}"
-                   th:text="${totalPages}">N</a>
-            </th:block>
-
-            <!-- Next -->
             <a class="page-btn"
                th:classappend="${currentPage == totalPages} ? ' disabled' : ''"
                th:href="@{/(currentPage=${currentPage + 1})}">Tiếp →</a>

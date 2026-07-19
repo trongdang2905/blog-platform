@@ -339,28 +339,12 @@
             .footer-actions {
                 justify-content: flex-end;
             }
-}
+        }
     </style>
 </head>
 <body>
 
-<nav>
-    <a href="/" class="logo">Forum<span>FPT</span></a>
-    <div class="nav-right">
-        <th:block th:if="${session.user == null}">
-            <a href="/auth/login" class="btn btn-ghost">Đăng nhập</a>
-            <a href="/auth/register" class="btn btn-primary">Đăng ký</a>
-        </th:block>
-
-        <!-- Đã đăng nhập -->
-        <th:block th:if="${session.user != null}">
-        <span style="font-size:13px;font-weight:500;color:var(--text-muted)"
-              th:text="${session.user.username}">username</span>
-            <a href="/user/post/saved-posts" class="btn btn-ghost">Bài viết đã lưu</a>
-            <a href="/auth/logout" class="btn btn-ghost">Đăng xuất</a>
-        </th:block>
-    </div>
-</nav>
+<div th:replace="~{fragments/nav :: nav}"></div>
 
 <div class="breadcrumb">
     <a href="/">Trang chủ</a>

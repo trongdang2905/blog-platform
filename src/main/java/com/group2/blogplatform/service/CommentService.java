@@ -2,17 +2,17 @@ package com.group2.blogplatform.service;
 
 import com.group2.blogplatform.dto.request.CreateCommentRequest;
 import com.group2.blogplatform.dto.response.CommentResponse;
-import com.group2.blogplatform.dto.response.CreateCommentResponse;
 
 import java.util.List;
 
 public interface CommentService {
 
-    CreateCommentResponse createComment(CreateCommentRequest request);
+    // Tao comment moi cho bai viet, gan cho userId truyen vao (lay tu session)
+    CommentResponse createComment(CreateCommentRequest request, Long userId);
 
-    List<CommentResponse> getVisibleCommentsByPost(Long postId);
+    // Lay danh sach comment dang hien thi (VISIBLE) cua 1 bai viet
+    // currentUserId co the null (khach chua dang nhap) -> dung de danh dau comment nao la cua chinh minh
+    List<CommentResponse> getVisibleCommentsByPost(Long postId, Long currentUserId);
 
     long countVisibleComments(Long postId);
-
-    CommentResponse createCommentToAppend(CreateCommentRequest request);
 }

@@ -2,7 +2,9 @@ package com.group2.blogplatform.controller;
 
 import com.group2.blogplatform.dto.request.CreateReportRequest;
 import com.group2.blogplatform.dto.response.CreateReportResponse;
+import com.group2.blogplatform.entity.User;
 import com.group2.blogplatform.service.ReportService;
+import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -24,14 +26,23 @@ public class ReportController {
     @PostMapping("/create")
     @ResponseBody
     public ResponseEntity<CreateReportResponse> createReport(@Valid @ModelAttribute CreateReportRequest dto,
-                                                             BindingResult bindingResult) {
+                                                              BindingResult bindingResult,
+                                                              HttpSession session) {
         if (bindingResult.hasErrors()) {
             CreateReportResponse errorResponse = new CreateReportResponse(false,
-                    bindingResult.getFieldError().getDefaultMessage());
+                    bindingResult.getFieldError() != null
+                            ? bindingResult.getFieldError().getDefaultMessage()
+                            : "Invalid request");
             return ResponseEntity.badRequest().body(errorResponse);
         }
 
-        CreateReportResponse response = reportService.createReport(dto);
+        User currentUser = (User) session.getAttribute("user");
+        if (currentUser == null) {
+            return ResponseEntity.status(401)
+                    .body(new CreateReportResponse(false, "Please log in to report content"));
+        }
+
+        CreateReportResponse response = reportService.createReport(dto, currentUser.getId());
 
         if (!response.isSuccess()) {
             return ResponseEntity.badRequest().body(response);

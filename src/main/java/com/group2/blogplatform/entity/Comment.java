@@ -21,6 +21,7 @@ public class Comment {
     @Column(name = "content", nullable = false)
     private String content;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
     private StatusComment statusComment = StatusComment.VISIBLE;
 

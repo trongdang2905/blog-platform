@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<!--
+    Fragment nav dùng chung cho toàn bộ app.
+    Cách dùng ở các trang khác: đặt ngay sau thẻ <body>:
+        <div th:replace="~{fragments/nav :: nav}"></div>
+    Không cần thêm CSS gì khác, style đã đóng gói sẵn trong fragment (prefix "gnav-"
+    để không trùng tên class với style riêng của từng trang).
+-->
+<div th:fragment="nav">
+    <style>
+        .gnav {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            padding: 12px 24px;
+            background: #1e1b2e;
+            border-bottom: 1px solid #2f2b45;
+            font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+        }
+        .gnav-logo {
+            font-size: 18px;
+            font-weight: 700;
+            color: #fff;
+            text-decoration: none;
+            white-space: nowrap;
+        }
+        .gnav-logo span { color: #7c3aed; }
+        .gnav-search {
+            flex: 1;
+            display: flex;
+            max-width: 420px;
+            margin: 0 12px;
+        }
+        .gnav-search input {
+            flex: 1;
+            padding: 7px 12px;
+            border: 1px solid #3a3552;
+            border-radius: 6px 0 0 6px;
+            background: #14121f;
+            color: #fff;
+            font-size: 14px;
+            outline: none;
+        }
+        .gnav-search button {
+            padding: 7px 14px;
+            border: none;
+            border-radius: 0 6px 6px 0;
+            background: #7c3aed;
+            color: #fff;
+            font-size: 14px;
+            cursor: pointer;
+        }
+        .gnav-links {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .gnav-user {
+            font-size: 13px;
+            font-weight: 500;
+            color: #b8b3cc;
+            margin-right: 4px;
+            white-space: nowrap;
+        }
+        .gnav-btn {
+            padding: 7px 14px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 500;
+            text-decoration: none;
+            white-space: nowrap;
+        }
+        .gnav-btn-ghost {
+            color: #e5e2f2;
+            background: transparent;
+            border: 1px solid #3a3552;
+        }
+        .gnav-btn-ghost:hover { background: #2a2640; }
+        .gnav-btn-primary {
+            color: #fff;
+            background: #7c3aed;
+            border: 1px solid #7c3aed;
+        }
+        .gnav-btn-primary:hover { background: #6b2fd6; }
+    </style>
+
+    <nav class="gnav">
+        <a href="/" class="gnav-logo">Forum<span>FPT</span></a>
+
+        <form class="gnav-search" action="/user/post/search" method="GET">
+            <input type="text" name="keyword" placeholder="Tìm kiếm bài viết...">
+            <button type="submit">Tìm</button>
+        </form>
+
+        <div class="gnav-links">
+            <!-- Chưa đăng nhập -->
+            <th:block th:if="${session.user == null}">
+                <a href="/auth/login" class="gnav-btn gnav-btn-ghost">Đăng nhập</a>
+                <a href="/auth/register" class="gnav-btn gnav-btn-primary">Đăng ký</a>
+            </th:block>
+
+            <!-- Đã đăng nhập -->
+            <th:block th:if="${session.user != null}">
+                <span class="gnav-user" th:text="${session.user.username}">username</span>
+
+                <a href="/user/post/create" class="gnav-btn gnav-btn-ghost">Viết bài mới</a>
+                <a href="/user/post/saved-posts" class="gnav-btn gnav-btn-ghost">Bài viết đã lưu</a>
+
+                <!-- Chỉ hiện với tài khoản MODERATOR -->
+                <a th:if="${session.user.role.name() == 'MODERATOR'}"
+                   href="/moderation/dashboard" class="gnav-btn gnav-btn-ghost">Kiểm duyệt</a>
+
+                <!-- Chỉ hiện với tài khoản ADMIN -->
+                <a th:if="${session.user.role.name() == 'ADMIN'}"
+                   href="/moderation/dashboard" class="gnav-btn gnav-btn-ghost">Kiểm duyệt</a>
+                <a th:if="${session.user.role.name() == 'ADMIN'}"
+                   href="/admin/topics" class="gnav-btn gnav-btn-ghost">Quản lý Topic</a>
+
+                <a href="/auth/logout" class="gnav-btn gnav-btn-ghost">Đăng xuất</a>
+            </th:block>
+        </div>
+    </nav>
+</div>
+
+</body>
+</html>

@@ -3,16 +3,19 @@ package com.group2.blogplatform.service.implementation;
 import com.group2.blogplatform.dto.response.ToggleLikeResponse;
 import com.group2.blogplatform.entity.Post;
 import com.group2.blogplatform.entity.PostLike;
+import com.group2.blogplatform.entity.StatusPost;
 import com.group2.blogplatform.entity.User;
 import com.group2.blogplatform.repository.PostLikeRepository;
 import com.group2.blogplatform.repository.PostRepository;
 import com.group2.blogplatform.repository.UserRepository;
 import com.group2.blogplatform.service.LikeService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class LikeServiceImpl implements LikeService {
@@ -21,20 +24,22 @@ public class LikeServiceImpl implements LikeService {
     private final PostRepository postRepository;
     private final UserRepository userRepository;
 
-    // TODO: thay bang user dang dang nhap (Spring Security) khi co UC Authentication
-    private static final Long CURRENT_USER_ID = 1L;
-
     @Override
     @Transactional
-    public ToggleLikeResponse like(Long postId) {
+    public ToggleLikeResponse like(Long postId, Long userId) {
         Post post = postRepository.findById(postId).orElse(null);
         if (post == null) {
             return new ToggleLikeResponse(false, false, 0, "Post not found");
         }
 
-        boolean alreadyLiked = postLikeRepository.existsByPost_IdAndUser_Id(postId, CURRENT_USER_ID);
+        if (post.getStatusPost() != StatusPost.PUBLISHED) {
+            return new ToggleLikeResponse(false, false, postLikeRepository.countByPost_Id(postId),
+                    "This post is no longer available");
+        }
+
+        boolean alreadyLiked = postLikeRepository.existsByPost_IdAndUser_Id(postId, userId);
         if (!alreadyLiked) {
-            User user = userRepository.findByID(CURRENT_USER_ID);
+            User user = userRepository.findByID(userId);
             if (user == null) {
                 return new ToggleLikeResponse(false, false, postLikeRepository.countByPost_Id(postId), "User not found");
             }
@@ -44,7 +49,8 @@ public class LikeServiceImpl implements LikeService {
             try {
                 postLikeRepository.save(like);
             } catch (DataIntegrityViolationException e) {
-
+                // Da co ban ghi like nay roi (race condition giua 2 request cung luc) -> bo qua, coi nhu da like
+                log.debug("Duplicate like ignored for postId={}, userId={}", postId, userId);
             }
         }
 
@@ -54,13 +60,13 @@ public class LikeServiceImpl implements LikeService {
 
     @Override
     @Transactional
-    public ToggleLikeResponse unlike(Long postId) {
+    public ToggleLikeResponse unlike(Long postId, Long userId) {
         Post post = postRepository.findById(postId).orElse(null);
         if (post == null) {
             return new ToggleLikeResponse(false, false, 0, "Post not found");
         }
 
-        postLikeRepository.deleteByPost_IdAndUser_Id(postId, CURRENT_USER_ID);
+        postLikeRepository.deleteByPost_IdAndUser_Id(postId, userId);
 
         long likeCount = postLikeRepository.countByPost_Id(postId);
         return new ToggleLikeResponse(true, false, likeCount, "Unliked");
@@ -72,7 +78,10 @@ public class LikeServiceImpl implements LikeService {
     }
 
     @Override
-    public boolean isLikedByCurrentUser(Long postId) {
-        return postLikeRepository.existsByPost_IdAndUser_Id(postId, CURRENT_USER_ID);
+    public boolean isLikedByCurrentUser(Long postId, Long userId) {
+        if (userId == null) {
+            return false;
+        }
+        return postLikeRepository.existsByPost_IdAndUser_Id(postId, userId);
     }
 }

@@ -27,8 +27,6 @@ import java.util.List;
 public class PostController {
 
     private final PostService postService;
-
-    // UC04/UC05 - bo sung de lay du lieu comment/like cho trang chi tiet bai viet
     private final CommentService commentService;
     private final LikeService likeService;
 
@@ -103,15 +101,16 @@ public class PostController {
     }
 
     @GetMapping("/{id}")
-    public String getDetailPost(@PathVariable("id") Long postId, Model model) {
+    public String getDetailPost(@PathVariable("id") Long postId, Model model, HttpSession session) {
+        User currentUser = (User) session.getAttribute("user");
+        Long currentUserId = (currentUser != null) ? currentUser.getId() : null;
+
         PostDTO post = postService.getPost(postId);
         model.addAttribute("post", post);
-        model.addAttribute("comments", commentService.getVisibleCommentsByPost(postId));
+        model.addAttribute("comments", commentService.getVisibleCommentsByPost(postId, currentUserId));
         model.addAttribute("commentCount", commentService.countVisibleComments(postId));
         model.addAttribute("likeCount", likeService.countLikes(postId));
-        model.addAttribute("likedByCurrentUser", likeService.isLikedByCurrentUser(postId));
+        model.addAttribute("likedByCurrentUser", likeService.isLikedByCurrentUser(postId, currentUserId));
         return "member/post-detail";
     }
-
-
 }

@@ -809,47 +809,7 @@
 </head>
 <body>
 
-<nav>
-    <a href="/" class="logo">Forum<span>FPT</span></a>
-
-    <!-- SEARCH FORM -->
-    <div class="nav-center">
-        <form class="search-form" id="searchForm" action="/user/post/search" method="GET" autocomplete="off"
-              onsubmit="handleSearchSubmit(event)">
-            <div class="search-input-wrap">
-                <span class="search-icon">🔍</span>
-                <input
-                        class="search-input"
-                        type="text"
-                        id="searchInput"
-                        name="keyword"
-                        placeholder="Tìm kiếm bài viết..."
-                        th:value="${keyword}"
-
-                >
-
-            </div>
-            <button type="submit" class="search-btn">Tìm</button>
-        </form>
-
-
-    </div>
-
-    <div class="nav-right">
-        <th:block th:if="${session.user == null}">
-            <a href="/auth/login" class="btn btn-ghost">Đăng nhập</a>
-            <a href="/auth/register" class="btn btn-primary">Đăng ký</a>
-        </th:block>
-
-        <!-- Đã đăng nhập -->
-        <th:block th:if="${session.user != null}">
-        <span style="font-size:13px;font-weight:500;color:var(--text-muted)"
-              th:text="${session.user.username}">username</span>
-            <a href="/user/post/saved-posts" class="btn btn-ghost">Bài viết đã lưu</a>
-            <a href="/auth/logout" class="btn btn-ghost">Đăng xuất</a>
-        </th:block>
-    </div>
-</nav>
+<div th:replace="~{fragments/nav :: nav}"></div>
 
 <div class="layout">
     <div>

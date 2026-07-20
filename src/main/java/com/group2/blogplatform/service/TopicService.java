@@ -11,4 +11,5 @@ public interface TopicService {
     void saveTopic(Topic topic);
     Topic getTopicById(Integer id);
     void deleteTopic(Integer id);
+    List<Topic> searchTopics(String keyword);
 }

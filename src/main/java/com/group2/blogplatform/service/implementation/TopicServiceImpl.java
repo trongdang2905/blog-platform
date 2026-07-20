@@ -7,13 +7,12 @@ import com.group2.blogplatform.repository.SavedPostRepository;
 import com.group2.blogplatform.repository.TopicRepository;
 import com.group2.blogplatform.service.TopicService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -35,7 +34,6 @@ public class TopicServiceImpl implements TopicService {
 
     @Override
     public List<PostDTO> findAllPostsByTopic(Long currentPage, Long topicId) {
-
         List<PostDTO> list = postRepository.getPostByTopicID(topicId)
                 .stream()
                 .map(post ->
@@ -73,7 +71,6 @@ public class TopicServiceImpl implements TopicService {
         return savedPostRepository.checkSavedByUserIdAndPostId(userId, postId);
     }
 
-
     @Override
     public void saveTopic(Topic topic) {
         if (topic.getName() != null) {
@@ -99,5 +96,18 @@ public class TopicServiceImpl implements TopicService {
     @Override
     public void deleteTopic(Integer id) {
         topicRepository.deleteById(id);
+    }
+
+    // Triển khai hàm tìm kiếm theo tên hoặc mô tả
+    @Override
+    public List<Topic> searchTopics(String keyword) {
+        if (keyword == null || keyword.trim().isEmpty()) {
+            return topicRepository.getAllTopics();
+        }
+        String lowerKey = keyword.toLowerCase().trim();
+        return topicRepository.getAllTopics().stream()
+                .filter(t -> (t.getName() != null && t.getName().toLowerCase().contains(lowerKey))
+                        || (t.getDescription() != null && t.getDescription().toLowerCase().contains(lowerKey)))
+                .collect(Collectors.toList());
     }
 }

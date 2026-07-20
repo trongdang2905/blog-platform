@@ -17,6 +17,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import com.group2.blogplatform.service.CommentService;
 import com.group2.blogplatform.service.LikeService;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.io.IOException;
 import java.util.List;
@@ -57,12 +58,13 @@ public class PostController {
 
     @GetMapping("/save")
     public String savePost(@RequestParam(name = "postId") Long postId,
-                           HttpSession session) {
+                           HttpSession session, RedirectAttributes redirectAttributes) {
         User user = (User) session.getAttribute("user");
         if (user == null) {
             return "redirect:/auth/login";
         }
-        postService.savePost(user.getId(), postId);
+        SaveResponse response = postService.savePost(user.getId(), postId);
+        redirectAttributes.addFlashAttribute("response", response);
         return "redirect:/user/post/" + postId;
     }
 

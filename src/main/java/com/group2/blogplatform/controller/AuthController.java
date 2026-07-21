@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.ui.Model;
 
 @RequiredArgsConstructor
 @Controller
@@ -22,12 +24,10 @@ public class AuthController {
 
     private final AuthService authService;
 
-
     @GetMapping("/login")
     public String login() {
         return "view/auth/login";
     }
-
 
     @PostMapping("/login")
     public ModelAndView processLogin(
@@ -45,19 +45,24 @@ public class AuthController {
             return mv;
         }
 
-
     @GetMapping("/register")
-    public String register() {
+    public String register(Model model) {
+        if (!model.containsAttribute("userRegisterRequest")) {
+            model.addAttribute("userRegisterRequest", new UserRegisterRequest());
+        }
         return "view/auth/register";
     }
 
     @PostMapping("/register")
     public ModelAndView processRegister(
-            @Valid @ModelAttribute("userRegisterRequest") UserRegisterRequest request,
-            BindingResult result)
+            @Valid @ModelAttribute UserRegisterRequest request,
+            BindingResult result, RedirectAttributes redirectAttributes)
     {
         if (result.hasErrors()) {
-            return new ModelAndView("view/auth/register");
+            redirectAttributes.addFlashAttribute(
+                    "org.springframework.validation.BindingResult.userRegisterRequest", result);
+            redirectAttributes.addFlashAttribute("userRegisterRequest", request);
+            return new ModelAndView("redirect:/auth/register");
         }
         authService.register(request);
         return new ModelAndView("redirect:/auth/login");

@@ -1,6 +1,7 @@
 package com.group2.blogplatform.exception;
 
 import com.group2.blogplatform.dto.request.CreatePostRequest;
+import com.group2.blogplatform.dto.request.UserRegisterRequest;
 import com.group2.blogplatform.dto.response.CreatePostResponse;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -49,6 +50,7 @@ public class GlobalExceptionHandler {
     public ModelAndView EmailExistException(EmailExistException ex) {
         ModelAndView mv = new ModelAndView("view/auth/register");
         mv.addObject("errorMessage", ex.getMessage());
+        mv.addObject("userRegisterRequest", new UserRegisterRequest());
         return mv;
     }
 }

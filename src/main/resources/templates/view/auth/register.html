@@ -39,19 +39,27 @@
                                 Create an Account
                             </h5>
 
+                            <p class="text-danger text-center"
+                               th:if="${errorMessage != null}"
+                               th:text="${errorMessage}">
+                            </p>
 
-
-                            <form th:action="@{/auth/register}" method="post">
+                            <form th:action="@{/auth/register}" th:object="${userRegisterRequest}" method="post">
 
                                 <!-- Username -->
                                 <div class="mb-3">
-                                    <label class="form-label fw-bold">Username</label>
+                                    <label class="form-label fw-bold">Fullname</label>
 
                                     <input type="text"
                                            class="form-control"
-                                           name="username"
+                                           th:field="*{username}"
+                                           th:errorclass="is-invalid"
                                            placeholder="Enter fullname">
 
+                                    <div class="text-danger mt-1"
+                                         th:if="${#fields.hasErrors('username')}"
+                                         th:errors="*{username}">
+                                    </div>
                                 </div>
 
                                 <!-- Email -->
@@ -60,9 +68,14 @@
 
                                     <input type="email"
                                            class="form-control"
-                                           name="email"
+                                           th:field="*{email}"
+                                           th:errorclass="is-invalid"
                                            placeholder="name@example.com">
 
+                                    <div class="text-danger mt-1"
+                                         th:if="${#fields.hasErrors('email')}"
+                                         th:errors="*{email}">
+                                    </div>
                                 </div>
 
                                 <!-- Password -->
@@ -71,14 +84,15 @@
 
                                     <input type="password"
                                            class="form-control"
-                                           name="password"
+                                           th:field="*{password}"
+                                           th:errorclass="is-invalid"
                                            placeholder="Enter password">
 
+                                    <div class="text-danger mt-1"
+                                         th:if="${#fields.hasErrors('password')}"
+                                         th:errors="*{password}">
+                                    </div>
                                 </div>
-                                <p class="text-danger text-center"
-                                   th:if="${errorMessage != null}"
-                                   th:text="${errorMessage}">
-                                </p>
 
                                 <button class="btn btn-dark w-100 btn-lg" type="submit">
                                     Register

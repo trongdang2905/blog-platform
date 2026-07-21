@@ -1,7 +1,12 @@
 package com.group2.blogplatform.controller;
 
+import com.group2.blogplatform.entity.User;
 import com.group2.blogplatform.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -13,12 +18,23 @@ public class AdminUserController {
     @Autowired
     private UserService userService;
 
-    // 1. Endpoint hiển thị danh sách người dùng
+    // 1. Endpoint hiển thị danh sách người dùng (có phân trang, tìm kiếm & lọc status)
     @GetMapping
     public String listUsers(@RequestParam(value = "search", required = false) String search,
                             @RequestParam(value = "status", required = false) String status,
+                            @RequestParam(value = "page", defaultValue = "0") int page,
+                            @RequestParam(value = "size", defaultValue = "4") int size,
                             Model model) {
-        model.addAttribute("users", userService.getAllUsers(search, status));
+
+        Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
+        Page<User> userPage = userService.getAllUsers(search, status, pageable);
+
+        model.addAttribute("users", userPage.getContent());
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", userPage.getTotalPages());
+        model.addAttribute("search", search);
+        model.addAttribute("status", status);
+
         return "admin/user/list";
     }
 

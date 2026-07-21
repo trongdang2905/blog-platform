@@ -87,6 +87,39 @@
             border: 1px solid #7c3aed;
         }
         .gnav-btn-primary:hover { background: #6b2fd6; }
+
+        /* Dropdown Admin */
+        .gnav-dropdown {
+            position: relative;
+            display: inline-block;
+        }
+        .gnav-dropdown-content {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background-color: #1e1b2e;
+            min-width: 160px;
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.5);
+            border: 1px solid #3a3552;
+            border-radius: 6px;
+            z-index: 1000;
+            margin-top: 4px;
+        }
+        .gnav-dropdown-content a {
+            color: #e5e2f2;
+            padding: 10px 14px;
+            text-decoration: none;
+            display: block;
+            font-size: 13px;
+        }
+        .gnav-dropdown-content a:hover {
+            background-color: #2a2640;
+            color: #fff;
+        }
+        .gnav-dropdown:hover .gnav-dropdown-content {
+            display: block;
+        }
     </style>
 
     <nav class="gnav">
@@ -111,15 +144,18 @@
                 <a href="/user/post/create" class="gnav-btn gnav-btn-ghost">Viết bài mới</a>
                 <a href="/user/post/saved-posts" class="gnav-btn gnav-btn-ghost">Bài viết đã lưu</a>
 
-                <!-- Chỉ hiện với tài khoản MODERATOR -->
-                <a th:if="${session.user.role.name() == 'MODERATOR'}"
+                <!-- Nút Kiểm duyệt -->
+                <a th:if="${session.user.role.name() == 'MODERATOR' || session.user.role.name() == 'ADMIN'}"
                    href="/moderation/dashboard" class="gnav-btn gnav-btn-ghost">Kiểm duyệt</a>
 
-                <!-- Chỉ hiện với tài khoản ADMIN -->
-                <a th:if="${session.user.role.name() == 'ADMIN'}"
-                   href="/moderation/dashboard" class="gnav-btn gnav-btn-ghost">Kiểm duyệt</a>
-                <a th:if="${session.user.role.name() == 'ADMIN'}"
-                   href="/admin/topics" class="gnav-btn gnav-btn-ghost">Quản lý Topic</a>
+                <!-- Menu Quản trị CHỈ chứa Topic & User -->
+                <div th:if="${session.user.role.name() == 'ADMIN'}" class="gnav-dropdown">
+                    <button class="gnav-btn gnav-btn-ghost" style="cursor: pointer;">Quản trị hệ thống ▾</button>
+                    <div class="gnav-dropdown-content">
+                        <a href="/admin/topics">Quản lý Topic</a>
+                        <a href="/admin/users">Quản lý User</a>
+                    </div>
+                </div>
 
                 <a href="/auth/logout" class="gnav-btn gnav-btn-ghost">Đăng xuất</a>
             </th:block>

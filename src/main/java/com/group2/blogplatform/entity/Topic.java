@@ -24,8 +24,8 @@ public class Topic {
     @Column(name = "slug", length = 150)
     private String slug;
 
-//    @NotBlank(message = "Description cannot be blank")
-    @Column(name = "description", columnDefinition = "TEXT")
+    //    @NotBlank(message = "Description cannot be blank")
+    @Column(name = "description", columnDefinition = "NVARCHAR(MAX)")
     private String description;
 
     @Column(name = "is_active")

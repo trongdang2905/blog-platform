@@ -4,12 +4,14 @@ import com.group2.blogplatform.entity.Topic;
 import com.group2.blogplatform.service.TopicService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @Controller
 @RequestMapping("/admin/topics")
@@ -18,19 +20,28 @@ public class AdminTopicController {
 
     private final TopicService topicService;
 
-    // 1. Hiển thị danh sách tất cả các Topic
+    // 1. Hiển thị danh sách tất cả các Topic (có phân trang & tìm kiếm)
     @GetMapping
-    public String listTopics(@RequestParam(value = "search", required = false) String search, Model model) {
-        List<Topic> topics;
+    public String listTopics(
+            @RequestParam(value = "search", required = false) String search,
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "size", defaultValue = "3") int size,
+            Model model) {
+
+        Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
+        Page<Topic> topicPage;
 
         if (search != null && !search.trim().isEmpty()) {
-            // Gọi hàm tìm kiếm từ Service
-            topics = topicService.searchTopics(search.trim());
+            topicPage = topicService.searchTopics(search.trim(), pageable);
         } else {
-            topics = topicService.findAll();
+            topicPage = topicService.findAll(pageable);
         }
 
-        model.addAttribute("topics", topics);
+        model.addAttribute("topics", topicPage.getContent());
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", topicPage.getTotalPages());
+        model.addAttribute("search", search);
+
         return "admin/topic/list";
     }
 

@@ -7,11 +7,16 @@ import com.group2.blogplatform.repository.SavedPostRepository;
 import com.group2.blogplatform.repository.TopicRepository;
 import com.group2.blogplatform.service.TopicService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.text.Normalizer;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Locale;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @Service
@@ -30,6 +35,12 @@ public class TopicServiceImpl implements TopicService {
     @Override
     public List<Topic> findAll() {
         return topicRepository.getAllTopics();
+    }
+
+    // --- BỔ SUNG: Phân trang tất cả Topic cho Admin ---
+    @Override
+    public Page<Topic> findAll(Pageable pageable) {
+        return topicRepository.findAll(pageable);
     }
 
     @Override
@@ -71,15 +82,35 @@ public class TopicServiceImpl implements TopicService {
         return savedPostRepository.checkSavedByUserIdAndPostId(userId, postId);
     }
 
+    // Hàm hỗ trợ tạo Slug chuẩn Tiếng Việt
+    private String generateSlug(String input) {
+        if (input == null || input.isBlank()) {
+            return "";
+        }
+        // 1. Thay đ/Đ thành d/D
+        String normalizedInput = input.replace('đ', 'd').replace('Đ', 'D');
+
+        // 2. Tách dấu tiếng Việt
+        String nowhitespace = Pattern.compile("[\\s+]").matcher(normalizedInput).replaceAll("-");
+        String normalized = Normalizer.normalize(nowhitespace, Normalizer.Form.NFD);
+
+        // 3. Xóa các dấu sau khi tách
+        Pattern pattern = Pattern.compile("\\p{InCombiningDiacriticalMarks}+");
+        String slug = pattern.matcher(normalized).replaceAll("");
+
+        // 4. Lọc ký tự đặc biệt, chuyển chữ thường và xử lý dấu gạch ngang
+        return Pattern.compile("[^\\w-]")
+                .matcher(slug)
+                .replaceAll("")
+                .toLowerCase(Locale.ENGLISH)
+                .replaceAll("-+", "-")
+                .replaceAll("^-|-$", "");
+    }
+
     @Override
     public void saveTopic(Topic topic) {
         if (topic.getName() != null) {
-            String slug = topic.getName().toLowerCase()
-                    .replaceAll("[^a-z0-9\\s-]", "")
-                    .replaceAll("\\s+", "-")
-                    .replaceAll("-+", "-")
-                    .replaceAll("^-|-$", "");
-            topic.setSlug(slug);
+            topic.setSlug(generateSlug(topic.getName()));
         }
         topicRepository.save(topic);
     }
@@ -109,5 +140,14 @@ public class TopicServiceImpl implements TopicService {
                 .filter(t -> (t.getName() != null && t.getName().toLowerCase().contains(lowerKey))
                         || (t.getDescription() != null && t.getDescription().toLowerCase().contains(lowerKey)))
                 .collect(Collectors.toList());
+    }
+
+    // --- BỔ SUNG: Tìm kiếm Topic có phân trang cho Admin ---
+    @Override
+    public Page<Topic> searchTopics(String keyword, Pageable pageable) {
+        if (keyword == null || keyword.trim().isEmpty()) {
+            return topicRepository.findAll(pageable);
+        }
+        return topicRepository.findByNameContainingIgnoreCaseOrDescriptionContainingIgnoreCase(keyword.trim(), keyword.trim(), pageable);
     }
 }

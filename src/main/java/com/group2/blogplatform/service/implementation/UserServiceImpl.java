@@ -6,6 +6,8 @@ import com.group2.blogplatform.entity.StatusUser;
 import com.group2.blogplatform.repository.UserRepository;
 import com.group2.blogplatform.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -44,6 +46,34 @@ public class UserServiceImpl implements UserService {
         }
 
         return users;
+    }
+
+    // --- BỔ SUNG: Phân trang & Tìm kiếm / Lọc cho Admin ---
+    @Override
+    public Page<User> getAllUsers(String search, String status, Pageable pageable) {
+        boolean hasSearch = search != null && !search.trim().isEmpty();
+        boolean hasStatus = status != null && !status.trim().isEmpty();
+
+        if (hasSearch && hasStatus) {
+            try {
+                StatusUser filterStatus = StatusUser.valueOf(status.toUpperCase());
+                return userRepository.findByStatusUserAndUsernameContainingIgnoreCaseOrStatusUserAndEmailContainingIgnoreCase(
+                        filterStatus, search.trim(), filterStatus, search.trim(), pageable);
+            } catch (IllegalArgumentException e) {
+                return userRepository.findByUsernameContainingIgnoreCaseOrEmailContainingIgnoreCase(search.trim(), search.trim(), pageable);
+            }
+        } else if (hasSearch) {
+            return userRepository.findByUsernameContainingIgnoreCaseOrEmailContainingIgnoreCase(search.trim(), search.trim(), pageable);
+        } else if (hasStatus) {
+            try {
+                StatusUser filterStatus = StatusUser.valueOf(status.toUpperCase());
+                return userRepository.findByStatusUser(filterStatus, pageable);
+            } catch (IllegalArgumentException e) {
+                return userRepository.findAll(pageable);
+            }
+        }
+
+        return userRepository.findAll(pageable);
     }
 
     @Override
